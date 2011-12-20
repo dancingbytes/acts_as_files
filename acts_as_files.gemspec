@@ -21,6 +21,6 @@ Gem::Specification.new do |s|
   s.licenses = ['MIT']
 
   s.add_dependency 'railties', ['>= 3.0.0']
-  s.add_development_dependency 'bundler', ['>= 1.0.0']
-
+  s.add_dependency 'quick_magick', ['0.8']
+  
 end
