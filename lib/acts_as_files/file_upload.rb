@@ -206,7 +206,7 @@ module ActsAsFiles
 
         return false unless self.image?
         
-        image = custom_sizing { |file| file.resize(size_str) }
+        image = self.custom_sizing { |file| file.resize(size_str) }
         image.mark = size_mark
         image.save ? image : false
 
@@ -283,6 +283,31 @@ module ActsAsFiles
         end
         result
       end # destroy
+
+      # Создании копии изображения (с возможностью преобразования).
+      # Информация о контексте изображения наследуется от родительского.
+      def custom_sizing
+
+        return unless self.image?
+        
+        fp = self.path
+        if block_given?
+          tf = ActsAsFiles::ImageProcessor.new(fp)
+          tf = yield(tf)
+          tf.save(File.join(Dir::tmpdir, "#{self.id}-#{Time.now.to_f}-#{rand(10)}-#{self.ext}.tmp"))
+          fp = tf.path
+        end
+        
+        self.class.new({ :file_upload => fp }) do |image|
+          image.name          = self.name
+          #image.sourced       = false
+          image.source_id     = self.id
+          image.context_type  = self.context_type
+          image.context_id    = self.context_id
+          image.context_field = self.context_field
+        end
+        
+      end # custom_sizing
 
       private
       
@@ -532,31 +557,6 @@ module ActsAsFiles
 
       end # delete_file
 
-      # Создании копии изображения (с возможностью преобразования).
-      # Информация о контексте изображения наследуется от родительского.
-      def custom_sizing
-
-        return unless self.image?
-        
-        fp = self.path
-        if block_given?
-          tf = ActsAsFiles::ImageProcessor.new(fp)
-          tf = yield(tf)
-          tf.save(File.join(Dir::tmpdir, "#{self.id}-#{Time.now.to_f}-#{rand(10)}-#{self.ext}.tmp"))
-          fp = tf.path
-        end
-        
-        self.class.new({ :file_upload => fp }) do |image|
-          image.name          = self.name
-          #image.sourced       = false
-          image.source_id     = self.id
-          image.context_type  = self.context_type
-          image.context_id    = self.context_id
-          image.context_field = self.context_field
-        end
-        
-      end # custom_sizing
-
       def save_states
         
         @context_state_changed = new_record? || 
@@ -584,10 +584,19 @@ module ActsAsFiles
           unless (field = self.opts[:fields][self.context_field.to_sym]).nil?
 
             (field[:copies] || {}).each do |mark, size|
-              #self.resize(mark, size)
               
               threads << Thread.new(self, mark, size) do |obj, mark, size|
-                obj.resize(mark, size)
+
+                if size.is_a?(String)
+                  obj.resize(mark, size)
+                elsif size.is_a?(Proc)
+                  
+                  image = obj.custom_sizing { |file| size.call(file) } 
+                  image.mark = mark
+                  image.save
+
+                end  
+
               end # Thread.new
               
             end # each

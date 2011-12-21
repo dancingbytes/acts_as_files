@@ -48,14 +48,27 @@ module ActsAsFiles
 
     end # resize
 
-    def crop_center(w,h=nil)
+    def resize_and_center(w=nil, h=nil)
 
-      h ||= w
-      @image.append_to_operators  "resize", "#{w}x#{h}^"
-      @image.append_to_settings   "gravity", "center"
-      self.crop(w, h)
+      if w.nil? && h.nil?
+        w, h = self.width, self.height
+      elsif w.nil? || h.nil?
+        w ||= h; h = w
+      end
 
-    end # crop_center
+      if ["png", "gif"].include?(self.format)
+        @image.append_basic  "-background transparent"
+      else
+        @image.append_basic  "-background white"
+      end
+
+      @image.append_basic "-compose Copy"
+      self.resize("#{w}x#{h}>")
+      @image.append_basic "-gravity center"
+      @image.append_basic "-extent #{w}x#{h}"
+      self
+
+    end # resize_and_center
 
     def crop(w,h, x=0, y=0)
 
@@ -67,18 +80,8 @@ module ActsAsFiles
 
     def thumb(w=nil, h=nil)
 
-      if w.nil? && h.nil?
-        w, h = self.width, self.height
-      elsif w.nil? || h.nil?
-        w ||= h; h = w
-      end
-
       self.format = "png"
-      @image.append_basic "-background transparent"
-      @image.append_basic "-compose Copy"
-      self.resize("#{w}x#{h}>")
-      @image.append_basic "-gravity center"
-      @image.append_basic "-extent #{w}x#{h}"
+      self.resize_and_center(w, h)
       self
 
     end # thumb
