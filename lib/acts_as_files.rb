@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'quick_magick'
 require 'acts_as_files/builder'
 require 'acts_as_files/configuration'
 require 'acts_as_files/order'
