@@ -34,11 +34,11 @@ module ActsAsFiles
     end # path
 
     def width
-      @image.width
+      @width ||= @image.width
     end # width
 
     def height
-      @image.height
+      @height ||= @image.height
     end # height
 
     def resize(cmd)
@@ -85,6 +85,20 @@ module ActsAsFiles
       self
 
     end # thumb
+
+    def watermark(wmf)
+      
+      w_img = QuickMagick::Image.read(wmf).first
+                      
+      w = w_img.width
+      h = w_img.height              
+      x = ((self.width - w) / 2)
+      y = ((self.height - h) / 2)
+                        
+      @image.append_basic "-draw \"image SrcOver #{x},#{y} #{w},#{h} '#{wmf}'\""
+      self        
+
+    end # watermark 
 
     def format=(new_format)
 
