@@ -96,7 +96,6 @@ module ActsAsFiles
       y = ((self.height - h) / 2)
                         
       @image.append_basic "-draw \"image SrcOver #{x},#{y} #{w},#{h} '#{wmf}'\""
-      puts "command_line: #{@image.command_line}"
       self        
 
     end # watermark 
