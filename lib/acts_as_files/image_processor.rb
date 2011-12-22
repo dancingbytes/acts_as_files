@@ -86,19 +86,14 @@ module ActsAsFiles
 
     end # thumb
 
-    def watermark(wmf)
+    def over(wmf, x=0, y=0, w=0,h=0)
       
       w_img = QuickMagick::Image.read(wmf).first
-                      
-      w = w_img.width
-      h = w_img.height              
-      x = ((self.width - w) / 2)
-      y = ((self.height - h) / 2)
-                        
+
       @image.append_basic "-draw \"image SrcOver #{x},#{y} #{w},#{h} '#{wmf}'\""
       self        
 
-    end # watermark 
+    end # over
 
     def format=(new_format)
 
