@@ -183,6 +183,9 @@ module ActsAsFiles
         (
           if looking_for == :thumb
             [config[:thumb_url_path], whole(self.sid), self.basename(:thumb)]
+          
+          elsif looking_for.present?
+            [config[:url_path], whole(self.id), self.copy(looking_for).basename]
           else
             [config[:url_path], whole(self.id), self.basename]
           end

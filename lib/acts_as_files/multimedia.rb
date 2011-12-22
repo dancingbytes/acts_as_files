@@ -179,6 +179,10 @@ module ActsAsFiles
         
       end # if
     end # manage_context_state
+    
+    def copy(*args)
+      self.class.copies_of(self.id).dimentions(*args).first
+    end # copy
 
     private
     
