@@ -11,4 +11,5 @@ require 'acts_as_files/multimedia'
 require 'acts_as_files/association_manager'
 require 'acts_as_files/base'
 
-Mongoid::Document::ClassMethods.send(:include, ActsAsFiles::Base)
+
+require 'acts_as_files/railtie'
