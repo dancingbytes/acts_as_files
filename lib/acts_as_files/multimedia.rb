@@ -21,6 +21,12 @@ module ActsAsFiles
     field :position, :type => Integer
     field :size, :type => Integer
     field :name
+    
+    index :mark, :background => true
+    index :context_id, :background => true
+    index :context_field, :background => true
+    index :position, :background => true
+    index :source_id, :background => true
 
     #set_table_name  "multimedias"
     
