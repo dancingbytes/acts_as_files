@@ -5,7 +5,7 @@ module ActsAsFiles
 
     class Context
 
-      def initialize(&block)
+      def initialize
 
         @one  = {}
         @many = {}

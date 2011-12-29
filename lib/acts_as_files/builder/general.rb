@@ -1,6 +1,19 @@
 # encoding: utf-8
 module ActsAsFiles
 
+  def self.config
+    
+    unless @config
+    
+      r = ActsAsFiles::Builder::General.new
+      @config = (r.compile || {})[Rails.env || RAILS_ENV || ENV] || {}
+
+    end # unless
+    @config
+    
+  end # config
+
+
   module Builder
 
     class General

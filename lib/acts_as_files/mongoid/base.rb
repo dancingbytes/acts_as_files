@@ -1,14 +1,19 @@
 # encoding: utf-8
+require 'acts_as_files/mongoid/association'
+
 module ActsAsFiles
   
   module Base
     
-    def acts_as_files &block
+    def acts_as_files(&block)
       
 #      extend  ActsAsTagging::Document::ClassMethods
       
-#      ActsAsFiles::ContextManager[self.name] = ActsAsFiles::Builder.new(self, assoc_name.to_sym).generate(&block)
-            
+      r = ActsAsFiles::Builder::Context.new
+      r.instance_eval &block if block_given?
+      
+      ActsAsFiles::Association.new(self, r.compile)
+
 #      self.set_callback(:save, :after) do |document|
 #        ActsAsFiles::AssociationManager.manage_fields(self)
 #      end

@@ -1,7 +1,6 @@
 # encoding: utf-8
 require 'acts_as_files/image_processor'
 require 'acts_as_files/content_parser'
-require 'acts_as_files/configuration'
 
 require 'acts_as_files/builder'
 require 'acts_as_files/railtie'
