@@ -5,9 +5,7 @@ module ActsAsFiles
     
     initializer 'acts_as_files' do |app|
     
-      require 'acts_as_files/mongoid/base'        if defined?(Mongoid)
-      require 'acts_as_files/active_record/base'  if defined?(ActiveRecord)
-      
+#      Mongoid::Document::ClassMethods.send(:include, ActsAsFiles::Base)
 #      if defined?(Kaminari)
 #        require 'kaminari/models/mongoid_extension'
 #        ActsAsFiles::Multimedia.send :include, Kaminari::MongoidExtension::Document

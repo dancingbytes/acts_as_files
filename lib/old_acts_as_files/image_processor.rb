@@ -1,6 +1,4 @@
 # encoding: utf-8
-require 'quick_magick'
-
 module QuickMagick
 
   class << self

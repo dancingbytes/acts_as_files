@@ -13,11 +13,14 @@ module ActsAsFiles
         ActsAsFiles::AssociationManager.manage_fields(self)
       end
       
+=begin      
       has_many assoc_name.to_sym,
         :class_name => 'ActsAsFiles::Multimedia',
         :dependent  => :destroy,
         :as         => :context
-      
+=end      
+# Item.first.files      
+
     end # act_as_files
     
   end # Base
