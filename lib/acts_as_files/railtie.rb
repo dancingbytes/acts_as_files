@@ -5,8 +5,11 @@ module ActsAsFiles
     
     initializer 'acts_as_files' do |app|
     
-      require 'acts_as_files/mongoid/base'        if defined?(Mongoid)
-      require 'acts_as_files/active_record/base'  if defined?(ActiveRecord)
+      if defined?(Mongoid)
+        require 'acts_as_files/mongoid/base'
+      elsif defined?(ActiveRecord)
+        require 'acts_as_files/active_record/base'
+      end  
       
 #      if defined?(Kaminari)
 #        require 'kaminari/models/mongoid_extension'

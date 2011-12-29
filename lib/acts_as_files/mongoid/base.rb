@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'acts_as_files/mongoid/association'
+require 'acts_as_files/mongoid/multimedia'
 
 module ActsAsFiles
   
