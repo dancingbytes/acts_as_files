@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'railties', ['>= 3.0.0']
   s.add_dependency 'quick_magick', ['0.8']
-  s.add_dependency 'nokogiri', ['~ 1.5']
+  s.add_dependency 'nokogiri', ['1.5']
   
 end

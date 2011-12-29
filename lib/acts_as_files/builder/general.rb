@@ -26,16 +26,16 @@ module ActsAsFiles
 
       def method_missing(name, *args, &block)
 
-        if [:development, :production, :test].include?(symbol)
+        if [:development, :production, :test].include?(name)
 
           r = ActsAsFiles::Builder::GeneralParams.new
           r.instance_eval &block if block_given?
-          @params[symbol.to_s] = r.compile
+          @params[name.to_s] = r.compile
 
         end # if
 
       end # method_missing
-    
+
     end # General
 
 
