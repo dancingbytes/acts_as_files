@@ -3,13 +3,26 @@ module ActsAsFiles
 
   module Multimedia
     
-    def test2
-      puts "Multimedia in aaf [test2]"
-    end # test2
+    extend ActiveSupport::Concern
+    include Mongoid::Document
 
-    def test
-      puts "Multimedia in aaf [test]"
-    end # test 
+    # metas
+    included do
+
+      scope   :source,  ->(ids) {
+        ids = [ids] unless ids.is_a? Array
+        any_of({:source_id.in => ids}, {:_id.in => ids})
+      }
+      
+      scope :copies_of, ->(id) {
+        where(:source_id => id)
+      }
+
+      scope   :sources,  where(:source_id => nil)
+
+    end # included  
+
+    # methods
 
   end # Multimedia
   
@@ -17,17 +30,11 @@ end # ActsAsFiles
 
 
 begin
-
-  Multimedia.send(:include, Mongoid::Document)
   Multimedia.send(:include, ActsAsFiles::Multimedia)
-
 rescue NameError
 
   class Multimedia
-    
-    include Mongoid::Document
     include ActsAsFiles::Multimedia
+  end
 
-  end # Multimedia
-
-end
+end # begin
