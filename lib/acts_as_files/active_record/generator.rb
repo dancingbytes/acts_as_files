@@ -1,11 +1,11 @@
 # encoding: utf-8
 module ActsAsFiles
 
-  class Association
+  class Generator
 
     def initialize(context, opts = {})
     end # new
 
-  end # Association  
+  end # Generator
 
 end # ActsAsFiles

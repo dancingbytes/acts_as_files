@@ -1,6 +1,54 @@
 # encoding: utf-8
 module ActsAsFiles
 
+=begin
+
+  DSL example:
+
+  acts_as_files do
+
+    has_one :pic do
+
+      # default "200x200^"
+
+      default do |file|
+        file.change_file.format('jpg')
+      end  
+
+      # copies :small, "123x123^"
+
+      copies :small do |file| 
+        file.change_file 
+      end
+
+      copies :medium, "300x300^"
+
+    end # has_one
+
+    has_many :images do
+
+      parse_from :description
+
+      # default "123x123^"
+
+      default do |file|
+        file.change_file.format('png')
+      end  
+
+      # copies :small, "123x123^"
+
+      copies :small do |file| 
+        file.change_file 
+      end
+
+      copies :medium, "300x300^"
+
+    end # has_many 
+
+  end # acts_as_files
+
+=end
+
   module Builder
 
     class Context

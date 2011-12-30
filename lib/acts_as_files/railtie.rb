@@ -10,11 +10,6 @@ module ActsAsFiles
       elsif defined?(ActiveRecord)
         require 'acts_as_files/active_record/base'
       end  
-      
-#      if defined?(Kaminari)
-#        require 'kaminari/models/mongoid_extension'
-#        ActsAsFiles::Multimedia.send :include, Kaminari::MongoidExtension::Document
-#      end
 
     end # initializer
 

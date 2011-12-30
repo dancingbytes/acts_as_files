@@ -6,7 +6,7 @@ module ActsAsFiles
     unless @config
     
       r = ActsAsFiles::Builder::General.new
-      @config = (r.compile || {})[Rails.env || RAILS_ENV || ENV] || {}
+      @config = (r.compile || {})[Rails.env || RAILS_ENV] || {}
 
     end # unless
     @config
