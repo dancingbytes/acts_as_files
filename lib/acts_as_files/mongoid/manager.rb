@@ -7,12 +7,14 @@ module ActsAsFiles
 
       def append_file(obj, file_id, field)
 
+        file_id = BSON::ObjectId(file_id) if file_id && BSON::ObjectId.legal?(file_id)
+
         unless file_id.is_a?(BSON::ObjectId)
 
           el = ::Multimedia.new do |o|
                  
             o.context_type  = obj.class.name
-            o.context_id    = obj.id.to_s
+            o.context_id    = obj.id
             o.context_field = field.to_s
             o.file_upload   = file_id
 
@@ -22,12 +24,14 @@ module ActsAsFiles
 
         else
 
-          (el = ::Multimedia.where({ ActsAsFiles::ID => file_id }).first)
+          if (el = ::Multimedia.where({ ActsAsFiles::ID => file_id }).first).nil?
+            return [nil, false]
+          end
 
           unless el.contexted?
             
             el.context_type   = obj.class.name
-            el.context_id     = obj.id.to_s
+            el.context_id     = obj.id
             el.context_field  = field.to_s
             el.file_upload    = el.path(:source)
 
@@ -40,14 +44,12 @@ module ActsAsFiles
             # не соответствует указанному полю то создаем копию файла, указав
             # требуемые данные.
             #
-            # В противном случае ничего не делаем
-            #
             if !el.context_by?(obj) || !el.field_by?(field)
 
               el_copy = ::Multimedia.new do |o|
                  
                 o.context_type  = obj.class.name
-                o.context_id    = obj.id.to_s
+                o.context_id    = obj.id
                 o.context_field = field.to_s
                 o.file_upload   = el.path(:source)
 
@@ -55,11 +57,14 @@ module ActsAsFiles
 
               return [el_copy, true] if el_copy.save
 
+            else
+              # В противном случае возвращаем данные о себе же
+              return [el, true]            
             end # if
 
           end # unless
 
-        end # if
+        end # unless
 
         [nil, false]
           

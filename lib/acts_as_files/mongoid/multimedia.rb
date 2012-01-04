@@ -58,7 +58,7 @@ module ActsAsFiles
       }
       
       scope :copies_of, ->(id) {
-        where(:source_id => id)
+        where(:source_id => id) if id
       }
 
       scope   :sources,  where(:source_id => nil)
@@ -73,7 +73,7 @@ module ActsAsFiles
       }
 
       scope   :by_field,  ->(field_name) {
-        where(:context_field => field_name.to_s)
+        where(:context_field => field_name.to_s) if field_name
       }
 
       scope   :by_context,  ->(obj) {

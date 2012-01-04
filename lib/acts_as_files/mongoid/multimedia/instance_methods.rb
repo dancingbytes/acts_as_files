@@ -146,17 +146,20 @@ module ActsAsFiles
 
       def save(*args)
 
+        return false if self.file_upload.nil? || self.size == 0
+
         nr = new_record?
         initialize_image
         
         if (result = super(*args))
           
-          begin
+          #begin
             nr ? create_file : update_file            
-          rescue => e
-            self.errors.add(:file_upload, e.message)
-            self.destroy
-          end
+          #rescue => e
+          #  result = false
+          #  self.errors.add(:file_upload, e.message)
+          #  self.destroy
+          #end
 
         end # if
 
@@ -256,22 +259,28 @@ module ActsAsFiles
 
       def create_file
 
-        return if @file.nil?
+        fp, ip = @file.path, self.path
+        if fp != ip
 
-        ip = self.path
-        # Сохраняем файл (копируем).
-        FileUtils.cp(@file.path, ip)
-        # Выставляем права на файл
-        FileUtils.chmod(0644, ip)
-        
-        # Если файл является базовым и не картинка -- завершаем работу.
+          # Сохраняем файл (копируем).
+          FileUtils.cp(fp, ip)
+          # Выставляем права на файл
+          FileUtils.chmod(0644, ip)
+
+        end # if
+
+        # Если файл не является базовым и не картинка -- завершаем работу.
         return if !self.source? || !@image
 
-        sp = self.path(:source)
-        # Сохраняем исходник.
-        FileUtils.cp(@source_image.path, sp)
-        # Выставляем права на файл
-        FileUtils.chmod(0644, sp)
+        fp, sp = @source_image.path, self.path(:source)
+        if fp != sp
+          
+          # Сохраняем исходник.
+          FileUtils.cp(fp, sp) 
+          # Выставляем права на файл
+          FileUtils.chmod(0644, sp)
+
+        end # if  
             
         # Создаем thumbnail.
         @image.thumb(80).save(self.path(:thumb))
@@ -306,7 +315,13 @@ module ActsAsFiles
 
         return if @file.nil?
 
-        delete_file
+        # Удаляем общий файл
+        FileUtils.rm Dir.glob( File.join( self.dir, "#{rest(self.id)}.*" ) ), :force => true
+
+        # Удалим все копии (если файл являектся базовым)
+        self.class.copies_of(self.id).destroy_all if self.source?
+        
+        # Создадим заново (по новыми данным)
         create_file
 
       end # update_file
@@ -316,20 +331,18 @@ module ActsAsFiles
         path_name = "#{rest(self.id)}.*"
 
         # Удаляем общий файл
-        FileUtils.rm Dir.glob( File.join( self.dir, path_name ) ), :force => true        
+        FileUtils.rm Dir.glob( File.join( self.dir, path_name ) ), :force => true
 
-        if self.source?
+        return unless self.source?
           
-          # Удаляем thumbnail
-          FileUtils.rm Dir.glob( File.join( self.dir(:thumb),  path_name ) ), :force => true
+        # Удаляем thumbnail
+        FileUtils.rm Dir.glob( File.join( self.dir(:thumb),  path_name ) ), :force => true
           
-          # Удаляем исходник
-          FileUtils.rm Dir.glob( File.join( self.dir(:source), path_name ) ), :force => true
+        # Удаляем исходник
+        FileUtils.rm Dir.glob( File.join( self.dir(:source), path_name ) ), :force => true
 
-          # Если удаляем исходный файл, то удалим все связанные с ним копии
-          self.class.copies_of(self.id).destroy_all
-
-        end  
+        # Если удаляем исходный файл, то удалим все связанные с ним копии
+        self.class.copies_of(self.id).destroy_all
 
       end # delete_file
 

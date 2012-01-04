@@ -182,30 +182,29 @@ module ActsAsFiles
               distinct(ActsAsFiles::ID).
               map(&:to_s)
 
-            # Данные пришедшие в перенной @#{field}
-            ids_new = obj.instance_variable_get("@#{field}".to_sym) || []
+            # Данные пришедшие в перенной @{field}
+            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map(&:to_s)
+            
+            # На удаление
+            ids_del = []
 
             # На добавление
             (ids_new - ids_db).each do |el_id|
 
               (el, r) = ActsAsFiles::Manager::append_file(obj, el_id, field)
-              ids_new[ids_new.index(el_id)] = el.id if r
-
+              ids_del.push(ids_new.delete(el_id)) unless r
+              
             end # each
+
+            ids_del += (ids_db - ids_new)
+            ids_del.uniq!
+            ids_del.compact!
+            
+            # Удаляем
+            ::Multimedia.source(ids_del).destroy_all unless ids_del.empty?
 
             # Обвновляем порядок файлов
             ActsAsFiles::Manager::update_files_order(ids_new)
-
-            # На удаление
-            unless (ids_del = (ids_db - ids_new)).empty?
-              
-              ::Multimedia.
-                by_context(obj).
-                by_field(field).
-                source(ids_del).
-                destroy_all
-
-            end # unless
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
             
