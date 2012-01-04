@@ -76,7 +76,7 @@ module ActsAsFiles
           @#{field} = unless val.is_a?(BSON::ObjectId)
             
             if BSON::ObjectId.legal?(val)
-              ::Multimedia.sources.where(:_id => BSON::ObjectId(val)).first.try(:path, :source)
+              BSON::ObjectId(val)
             elsif val.respond_to?(:id)
               val.id.to_s
             else
@@ -84,7 +84,7 @@ module ActsAsFiles
             end  
 
           else
-            ::Multimedia.sources.where(:_id => val).first.try(:path, :source)
+            val
           end
 
         end
@@ -109,7 +109,7 @@ module ActsAsFiles
             @#{field} << unless el.is_a?(BSON::ObjectId)
             
               if BSON::ObjectId.legal?(el)
-                ::Multimedia.sources.where(:_id => BSON::ObjectId(el)).first.try(:path, :source)
+                BSON::ObjectId(el)
               elsif el.respond_to?(:id)
                 el.id.to_s
               else
@@ -117,7 +117,7 @@ module ActsAsFiles
               end
 
             else
-              ::Multimedia.sources.where(:_id => el).first.try(:path, :source)
+              el
             end # unless
 
           end # each
