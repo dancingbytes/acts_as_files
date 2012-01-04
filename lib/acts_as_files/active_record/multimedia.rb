@@ -1,4 +1,7 @@
 # encoding: utf-8
+require 'acts_as_files/active_record/multimedia/class_methods'
+require 'acts_as_files/active_record/multimedia/instance_methods'
+
 module ActsAsFiles
 
   module Multimedia
@@ -15,12 +18,12 @@ module ActsAsFiles
 end # ActsAsFiles
 
 
-begin
+if ActsAsFiles.class_exists?("Multimedia")
   Multimedia.send(:include, ActsAsFiles::Multimedia)
-rescue NameError
-
+else
+  
   class Multimedia < ActiveRecord::Base
     include ActsAsFiles::Multimedia
   end
 
-end # begin
+end

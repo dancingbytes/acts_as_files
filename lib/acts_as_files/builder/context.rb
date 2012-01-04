@@ -3,7 +3,7 @@ module ActsAsFiles
 
 =begin
 
-  DSL example:
+  # DSL example:
 
   acts_as_files do
 

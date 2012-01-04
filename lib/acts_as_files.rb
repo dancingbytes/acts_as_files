@@ -1,16 +1,40 @@
 # encoding: utf-8
+require 'acts_as_files/builder'
+
+module ActsAsFiles
+
+  MONGOID = defined?(Mongoid)
+  AR      = defined?(ActiveRecord)
+  ID      = (ActsAsFiles::MONGOID ? :_id : :id)
+
+  class << self
+
+    def config
+      
+      unless @config
+      
+        r = ActsAsFiles::Builder::General.new
+        @config = (r.compile || {})[Rails.env || RAILS_ENV] || {}
+
+      end # unless
+      @config
+      
+    end # config
+
+    def class_exists?(class_name)
+      
+      return false if class_name.blank?
+      Object.const_defined?(class_name) ? Object.const_get(class_name) : (Object.const_missing(class_name) rescue false)
+
+    end # class_exists?
+
+  end # class << self
+
+end # ActsAsFiles
+
 require 'acts_as_files/image_processor'
 require 'acts_as_files/content_parser'
+require 'acts_as_files/context_store'
+require 'acts_as_files/base_manager'
 
-require 'acts_as_files/builder'
 require 'acts_as_files/railtie'
-
-#require 'acts_as_files/order'
-
-#require 'acts_as_files/context_manager'
-#require 'acts_as_files/file_upload'
-#require 'acts_as_files/multimedia'
-#require 'acts_as_files/association_manager'
-#require 'acts_as_files/base'
-
-#require 'acts_as_files/railtie'

@@ -1,6 +1,6 @@
 # encoding: utf-8
 require 'acts_as_files/mongoid/multimedia'
-require 'acts_as_files/mongoid/generator'
+require 'acts_as_files/mongoid/manager'
 
 module ActsAsFiles
   
@@ -8,16 +8,10 @@ module ActsAsFiles
     
     def acts_as_files(&block)
       
-#      extend  ActsAsTagging::Document::ClassMethods
-      
       r = ActsAsFiles::Builder::Context.new
       r.instance_eval &block if block_given?
       
-      ActsAsFiles::Generator.new(self, r.compile)
-
-#      g.set_callback(:save, :after) do |document|
-##        ActsAsFiles::AssociationManager.manage_fields(self)
-#      end
+      ActsAsFiles::Manager.new(self, r.compile)
 
     end # act_as_files
     

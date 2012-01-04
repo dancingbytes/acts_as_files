@@ -5,9 +5,9 @@ module ActsAsFiles
     
     initializer 'acts_as_files' do |app|
     
-      if defined?(Mongoid)
+      if ActsAsFiles::MONGOID
         require 'acts_as_files/mongoid/base'
-      elsif defined?(ActiveRecord)
+      elsif ActsAsFiles::AR
         require 'acts_as_files/active_record/base'
       end  
 

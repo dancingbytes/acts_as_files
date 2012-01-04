@@ -1,10 +1,16 @@
 # encoding: utf-8
+require 'acts_as_files/mongoid/multimedia/class_methods'
+require 'acts_as_files/mongoid/multimedia/instance_methods'
+
 module ActsAsFiles
 
   module Multimedia
     
-    extend ActiveSupport::Concern
+    extend  ActiveSupport::Concern
     include Mongoid::Document
+
+    extend  ActsAsFiles::Multimedia::ClassMethods
+    include ActsAsFiles::Multimedia::InstanceMethods
 
     # metas
     included do
@@ -18,7 +24,7 @@ module ActsAsFiles
       field :context_id
       field :context_field
       field :mime_type
-      field :created_at,    :type => DateTime
+      field :updated_at,    :type => DateTime
       field :position,      :type => Integer
       field :size,          :type => Integer
       field :name
@@ -29,6 +35,24 @@ module ActsAsFiles
       index :context_field, :background => true   
       index :position,      :background => true
       index :source_id,     :background => true
+
+
+      acts_as_tagging :if => ->(c) { c.source? }
+
+      # Защищенные параметры
+      attr_protected  :source_id,
+                      :ext,
+                      :mark,
+                      :width,
+                      :height,
+                      :context_type,
+                      :context_id,
+                      :context_field,
+                      :mime_type,
+                      :updated_at,
+                      :position,
+                      :size
+                      
 
       scope   :source,  ->(ids) {
         ids = [ids] unless ids.is_a? Array
@@ -54,9 +78,14 @@ module ActsAsFiles
         where(:context_field => field_name.to_s)
       }
 
+      scope   :by_context,  ->(obj) {
+        where(:context_type => obj.class.name, :context_id => obj.id) if obj
+      }
+
       scope   :general,  by_field('')
 
       scope   :dimentions, ->(*args) {
+
         if args.length > 0
         
           if (args[0].is_a?(String) || args[0].is_a?(Symbol))
@@ -74,33 +103,36 @@ module ActsAsFiles
 
       } # dimentions
 
-    end # included  
 
-    # methods
+      before_save ->(f) { f.updated_at = Time.now.utc }
+
+      before_create   :add_system_tags
+      before_save     :initialize_image
+
+      after_create    :create_file
+      after_update    :update_file
+
+      after_destroy   :delete_file
+
+    end # included  
 
     private
 
-    def config
-      ActsAsFiles.config
-    end # config
+    def add_system_tags
+      self.tag_sys_list << self.ext unless self.ext.blank?
+    end # add_system_tags
 
   end # Multimedia
   
 end # ActsAsFiles
 
 
-begin
+if ActsAsFiles.class_exists?("Multimedia")
   Multimedia.send(:include, ActsAsFiles::Multimedia)
-rescue NameError
-
+else
+  
   class Multimedia
     include ActsAsFiles::Multimedia
   end
 
-end # begin
-
-# Patch for kaminari
-#if defined?(Kaminari)
-#  require 'kaminari/models/mongoid_extension'
-#  Multimedia.send :include, Kaminari::MongoidExtension::Document
-#end
+end
