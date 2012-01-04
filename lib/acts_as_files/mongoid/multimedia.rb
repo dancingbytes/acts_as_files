@@ -37,8 +37,6 @@ module ActsAsFiles
       index :source_id,     :background => true
 
 
-      acts_as_tagging :if => ->(c) { c.source? }
-
       # Защищенные параметры
       attr_protected  :source_id,
                       :ext,
@@ -103,24 +101,9 @@ module ActsAsFiles
 
       } # dimentions
 
-
       before_save ->(f) { f.updated_at = Time.now.utc }
 
-      before_create   :add_system_tags
-      before_save     :initialize_image
-
-      after_create    :create_file
-      after_update    :update_file
-
-      after_destroy   :delete_file
-
     end # included  
-
-    private
-
-    def add_system_tags
-      self.tag_sys_list << self.ext unless self.ext.blank?
-    end # add_system_tags
 
   end # Multimedia
   
@@ -135,4 +118,9 @@ else
     include ActsAsFiles::Multimedia
   end
 
+end
+
+if defined?(Kaminari)
+  require 'kaminari/models/mongoid_extension'
+  Multimedia.send :include, Kaminari::MongoidExtension::Document
 end

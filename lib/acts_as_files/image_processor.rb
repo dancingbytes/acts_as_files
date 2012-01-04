@@ -25,7 +25,12 @@ module ActsAsFiles
 
     def initialize(src)
 
-      src     = src.path if src.respond_to?(:path)
+      src = src.path if src.respond_to?(:path)
+      
+      if !src || !File.exists?(src)
+        raise QuickMagick::QuickMagickError, "File `#{src}` doesn`t exist!"
+      end
+        
       @image  = ::QuickMagick::Image.read(src).first
       @src    = src
 

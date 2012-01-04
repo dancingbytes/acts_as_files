@@ -6,8 +6,7 @@ module ActsAsFiles
     class << self
 
       def append_file(obj, file_id, field)
-        
-        # Ищем файл
+
         unless file_id.is_a?(BSON::ObjectId)
 
           el = ::Multimedia.new do |o|

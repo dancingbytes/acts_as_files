@@ -144,6 +144,35 @@ module ActsAsFiles
         
       end # custom_sizing
 
+      def save(*args)
+
+        nr = new_record?
+        initialize_image
+        
+        if (result = super(*args))
+          
+          begin
+            nr ? create_file : update_file            
+          rescue => e
+            self.errors.add(:file_upload, e.message)
+            self.destroy
+          end
+
+        end # if
+
+        result
+
+      end # save
+
+      def destroy
+
+        if (result = super)
+          delete_file
+        end
+        result  
+
+      end # destroy
+
       private
 
       def ident
@@ -165,6 +194,7 @@ module ActsAsFiles
       def initialize_file
 
         @file = self.file_upload
+
         return if @file.nil?
 
         # Опреледяем расширение файла
@@ -217,7 +247,7 @@ module ActsAsFiles
         do_action(self, configs[:default]) if self.source?
 
         @image = ActsAsFiles::ImageProcessor.new(self.file_upload)
-      
+
         self.width  = @image.width
         self.height = @image.height
         self.ext    = @image.format
@@ -239,7 +269,7 @@ module ActsAsFiles
 
         sp = self.path(:source)
         # Сохраняем исходник.
-        FileUtils.cp(@source_image, sp)
+        FileUtils.cp(@source_image.path, sp)
         # Выставляем права на файл
         FileUtils.chmod(0644, sp)
             
