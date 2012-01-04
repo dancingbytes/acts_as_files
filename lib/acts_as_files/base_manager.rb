@@ -122,7 +122,7 @@ module ActsAsFiles
       @context.class_eval %Q{
 
         def #{field.to_sym}(*args)
-          ::Multimedia.by_field("#{field}").dimentions(*args).first
+          ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
         end
 
       }, __FILE__, __LINE__
@@ -161,7 +161,7 @@ module ActsAsFiles
       @context.class_eval %Q{
 
         def #{field.to_sym}(*args)
-          ::Multimedia.by_field("#{field}").dimentions(*args).asc(:position)
+          ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
         end
 
       }, __FILE__, __LINE__
