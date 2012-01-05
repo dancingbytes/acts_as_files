@@ -9,9 +9,19 @@ module ActsAsFiles
         require 'acts_as_files/mongoid/base'
       elsif ActsAsFiles::AR
         require 'acts_as_files/active_record/base'
-      end  
+      end
 
     end # initializer
+
+    config.to_prepare do
+
+      if ActsAsFiles::MONGOID
+        load 'acts_as_files/mongoid/setup.rb'
+      elsif ActsAsFiles::AR
+        load 'acts_as_files/active_record/setup.rb'
+      end
+
+    end # to_prepare
 
   end # Railtie
 

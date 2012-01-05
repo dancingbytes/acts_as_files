@@ -8,7 +8,7 @@ module ActsAsFiles
       #
       # Основные рабочие методы
       #
-      def append_file(obj, file_id, field)
+      def append_file(*args)
         raise "ActsAsFiles::BaseManager. Class method `append_file` must be rewrited!"
       end # append_file
 
