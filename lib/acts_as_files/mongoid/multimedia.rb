@@ -8,6 +8,7 @@ module ActsAsFiles
     
     extend  ActiveSupport::Concern
     include Mongoid::Document
+    include Mongoid::Timestamps::Updated
 
     extend  ActsAsFiles::Multimedia::ClassMethods
     include ActsAsFiles::Multimedia::InstanceMethods
@@ -101,14 +102,11 @@ module ActsAsFiles
 
       } # dimentions
 
-      before_save ->(f) { f.updated_at = Time.now.utc }
-
     end # included  
 
   end # Multimedia
   
 end # ActsAsFiles
-
 
 if ActsAsFiles.class_exists?("Multimedia")
   Multimedia.send(:include, ActsAsFiles::Multimedia)

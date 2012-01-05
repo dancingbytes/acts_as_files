@@ -24,7 +24,13 @@ module ActsAsFiles
     def class_exists?(class_name)
       
       return false if class_name.blank?
-      Object.const_defined?(class_name) ? Object.const_get(class_name) : (Object.const_missing(class_name) rescue false)
+
+      begin
+        Object.const_defined?(class_name) ? Object.const_get(class_name) : Object.const_missing(class_name)
+      rescue => e
+        return false if e.instance_of?(NameError)
+        raise e
+      end
 
     end # class_exists?
 
