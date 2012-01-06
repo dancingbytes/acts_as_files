@@ -8,6 +8,11 @@ module ActsAsFiles
       #
       # Основные рабочие методы
       #
+
+      def convert_to_obj(*args)
+        raise "ActsAsFiles::BaseManager. Class method `convert_to_obj` must be rewrited!"
+      end # convert_to_obj
+
       def append_file(*args)
         raise "ActsAsFiles::BaseManager. Class method `append_file` must be rewrited!"
       end # append_file
@@ -37,14 +42,11 @@ module ActsAsFiles
               if (file_id = ::Multimedia.get_from_url(url))
 
                 found = true
+                el = append_file(obj, file_id, field)
 
-                (el, r) = append_file(
-                  obj,
-                  obj.instance_variable_get("@#{field}".to_sym),
-                  field
-                )
-
-                ids_save << (result = el.id) if r
+                if el && el.save
+                  ids_save << (result = el.id)
+                end
 
               end # if
 
@@ -117,15 +119,36 @@ module ActsAsFiles
     #
     # Relations 
     #
-    def has_one(field, parse_from)
+    def has_one(field, parse_from = nil)
 
-      @context.class_eval %Q{
+      if parse_from.nil?
 
-        def #{field.to_sym}(*args)
-          ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
-        end
+        @context.class_eval %Q{
 
-      }, __FILE__, __LINE__
+          def #{field.to_sym}(*args)
+            
+            return @#{field}.freeze if @#{field}
+            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
+
+          end
+
+          def #{field.to_sym}=(val)
+            @#{field} = ActsAsFiles::Manager.append_file(self, val, "#{field}")
+          end
+
+        }, __FILE__, __LINE__
+
+      else  
+
+        @context.class_eval %Q{
+
+          def #{field.to_sym}(*args)            
+            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
+          end
+
+        }, __FILE__, __LINE__
+
+      end # if
 
       @context.set_callback(:save, :after) do |obj|
 
@@ -136,15 +159,18 @@ module ActsAsFiles
           el_id = obj.instance_variable_get("@#{field}".to_sym)
           if el_id && obj.try("#{field}_changed?")
 
-            (el, r) = ActsAsFiles::Manager::append_file(obj, el_id, field)
-            
-            # Удаляем все базовые файлы, кроме текущего
-            ::Multimedia.
-              by_context(obj).
-              by_field(field).
-              skip_ids(el.id).
-              sources.
-              destroy_all unless el.id.nil?
+            el = ActsAsFiles::Manager::append_file(obj, el_id, field)
+            if el && el.save
+
+              # Удаляем все базовые файлы, кроме текущего
+              ::Multimedia.
+                by_context(obj).
+                by_field(field).
+                skip_ids(el.id).
+                sources.
+                destroy_all
+
+            end # if
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
 
@@ -158,13 +184,43 @@ module ActsAsFiles
 
     def has_many(field, parse_from = nil)
 
-      @context.class_eval %Q{
+      if parse_from.nil?
 
-        def #{field.to_sym}(*args)
-          ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
-        end
+        @context.class_eval %Q{
 
-      }, __FILE__, __LINE__
+          def #{field.to_sym}(*args)
+
+            return @#{field}.map(&:freeze) if @#{field}
+            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
+
+          end
+
+          def #{field.to_sym}=(val)
+
+            val = [val] unless val.is_a?(Array)
+
+            @#{field} = []
+            val.compact.uniq.each do |el|
+              @#{field} << ActsAsFiles::Manager.append_file(self, el, "#{field}")
+            end # each
+
+            @#{field}
+
+          end
+
+        }, __FILE__, __LINE__
+      
+      else
+
+        @context.class_eval %Q{
+
+          def #{field.to_sym}(*args)            
+            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
+          end
+
+        }, __FILE__, __LINE__
+
+      end # if  
 
       @context.set_callback(:save, :after) do |obj|
 
@@ -179,11 +235,10 @@ module ActsAsFiles
               by_context(obj).
               by_field(field).
               sources.
-              distinct(ActsAsFiles::ID).
-              map(&:to_s)
+              distinct(ActsAsFiles::ID)
 
             # Данные пришедшие в перенной @{field}
-            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map(&:to_s)
+            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map(&:id)
             
             # На удаление
             ids_del = []
@@ -191,8 +246,10 @@ module ActsAsFiles
             # На добавление
             (ids_new - ids_db).each do |el_id|
 
-              (el, r) = ActsAsFiles::Manager::append_file(obj, el_id, field)
-              ids_del.push(ids_new.delete(el_id)) unless r
+              el = ActsAsFiles::Manager::append_file(obj, el_id, field)
+              if !el || !el.save
+                ids_del.push(ids_new.delete(el_id))
+              end  
               
             end # each
 
