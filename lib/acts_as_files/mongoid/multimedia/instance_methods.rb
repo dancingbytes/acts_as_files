@@ -153,13 +153,13 @@ module ActsAsFiles
         
         if (result = super(*args))
           
-          #begin
+          begin
             nr ? create_file : update_file            
-          #rescue => e
-          #  result = false
-          #  self.errors.add(:file_upload, e.message)
-          #  self.destroy
-          #end
+          rescue => e
+            result = false
+            self.errors.add(:file_upload, e.message)
+            self.destroy
+          end
 
         end # if
 
