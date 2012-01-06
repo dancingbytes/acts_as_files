@@ -8,11 +8,6 @@ module ActsAsFiles
       #
       # Основные рабочие методы
       #
-
-      def convert_to_obj(*args)
-        raise "ActsAsFiles::BaseManager. Class method `convert_to_obj` must be rewrited!"
-      end # convert_to_obj
-
       def append_file(*args)
         raise "ActsAsFiles::BaseManager. Class method `append_file` must be rewrited!"
       end # append_file
