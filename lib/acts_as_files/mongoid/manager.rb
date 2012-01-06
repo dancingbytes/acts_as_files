@@ -27,7 +27,7 @@ module ActsAsFiles
 
         # BSON::ObjectId or BSON::ObjectId.legal?
         if file_id.is_a?(BSON::ObjectId)
-          el = ::Multimedia.where({ ActsAsFiles::ID => file_id }).first
+          el = ::Multimedia.where(ActsAsFiles::ID => file_id).first
         end # if
 
         # Multimedia
@@ -36,7 +36,7 @@ module ActsAsFiles
           el = if file_id.new_record?
             file_id
           else
-            ::Multimedia.where({ ActsAsFiles::ID => file_id.id }).first
+            ::Multimedia.where(ActsAsFiles::ID => file_id.id).first
           end
             
         end # if  
