@@ -7,7 +7,7 @@ module ActsAsFiles
 
       # Задан ли контекст
       def contexted?
-        !(self.context_type.blank? && self.context_id.nil?)
+        !(self.context_type.blank? && self.context_id.blank?)
       end # contexted?
 
       # Задан ли контекст от указанного этого объекта
@@ -146,20 +146,20 @@ module ActsAsFiles
 
       def save(*args)
 
-        return false if self.file_upload.nil? || self.size == 0
+        return false if self.file_upload.nil? || !valid_size?
 
         nr = new_record?
         initialize_image
         
         if (result = super(*args))
           
-          begin
+          #begin
             nr ? create_file : update_file            
-          rescue => e
-            result = false
-            self.errors.add(:file_upload, e.message)
-            self.destroy
-          end
+          #rescue => e
+          #  result = false
+          #  self.errors.add(:file_upload, e.message)
+          #  self.destroy
+          #end
 
         end # if
 
@@ -177,6 +177,14 @@ module ActsAsFiles
       end # destroy
 
       private
+
+      def valid_size?
+
+        sz = ActsAsFiles.config["file_size_limit"].try(:to_i) || 0
+        sz = 1*1024*1024 if sz <= 0
+        (1..sz).include?(self.size)
+
+      end # valid_size?
 
       def ident
         self.class.ident(self)

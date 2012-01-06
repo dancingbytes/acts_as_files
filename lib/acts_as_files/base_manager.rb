@@ -147,12 +147,12 @@ module ActsAsFiles
 
       @context.set_callback(:save, :after) do |obj|
 
-        unless parse_from.nil?          
+        unless parse_from.nil?
           ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym, false)
         else
 
           el_id = obj.instance_variable_get("@#{field}".to_sym)
-          if el_id && obj.try("#{field}_changed?")
+          if obj.try("#{field}_changed?")
 
             el = ActsAsFiles::Manager::append_file(obj, el_id, field)
             if el && el.save
@@ -185,7 +185,7 @@ module ActsAsFiles
 
           def #{field.to_sym}(*args)
 
-            return @#{field}.map(&:freeze) if @#{field}
+            return @#{field}.map(:freeze) if @#{field}
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
 
           end
