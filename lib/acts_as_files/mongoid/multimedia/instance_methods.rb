@@ -150,7 +150,8 @@ module ActsAsFiles
 
         nr = new_record?
         initialize_image
-        
+        self.updated_at = Time.now.utc
+
         if (result = super(*args))
           
           begin

@@ -8,8 +8,7 @@ module ActsAsFiles
     
     extend  ActiveSupport::Concern
     include Mongoid::Document
-    include Mongoid::Timestamps::Updated
-
+    
     extend  ActsAsFiles::Multimedia::ClassMethods
     include ActsAsFiles::Multimedia::InstanceMethods
 
