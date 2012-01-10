@@ -233,7 +233,7 @@ module ActsAsFiles
               distinct(ActsAsFiles::ID)
 
             # Данные пришедшие в перенной @{field}
-            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map(&:id)
+            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map { |x| x.try(:id) }
             
             # На удаление
             ids_del = []
