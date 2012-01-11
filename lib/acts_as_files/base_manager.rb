@@ -122,7 +122,7 @@ module ActsAsFiles
 
           def #{field.to_sym}(*args)
             
-            return @#{field}.freeze if @#{field}
+            return @#{field} if @#{field}
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
 
           end
@@ -151,10 +151,9 @@ module ActsAsFiles
           ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym, false)
         else
 
-          el_id = obj.instance_variable_get("@#{field}".to_sym)
+          el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
-            el = ActsAsFiles::Manager::append_file(obj, el_id, field)
             if el && el.save
 
               # Удаляем все базовые файлы, кроме текущего
@@ -185,7 +184,7 @@ module ActsAsFiles
 
           def #{field.to_sym}(*args)
 
-            return @#{field}.map(:freeze) if @#{field}
+            return @#{field} if @#{field}
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
 
           end
@@ -232,31 +231,20 @@ module ActsAsFiles
               sources.
               distinct(ActsAsFiles::ID)
 
+            ids_saved = []
+
             # Данные пришедшие в перенной @{field}
-            ids_new = (obj.instance_variable_get("@#{field}".to_sym) || []).map { |x| x.try(:id) }
-            
-            # На удаление
-            ids_del = []
-
-            # На добавление
-            (ids_new - ids_db).each do |el_id|
-
-              el = ActsAsFiles::Manager::append_file(obj, el_id, field)
-              if !el || !el.save
-                ids_del.push(ids_new.delete(el_id))
-              end  
-              
+            (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
+              ids_saved.push(el.id) if el && (ids_db.include?(el.id) || el.save)
             end # each
 
-            ids_del += (ids_db - ids_new)
-            ids_del.uniq!
-            ids_del.compact!
-            
             # Удаляем
-            ::Multimedia.source(ids_del).destroy_all unless ids_del.empty?
+            unless (ids_del = ids_db - ids_saved).empty?
+              ::Multimedia.source(ids_del).destroy_all
+            end  
 
             # Обвновляем порядок файлов
-            ActsAsFiles::Manager::update_files_order(ids_new)
+            ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
             
@@ -273,7 +261,7 @@ module ActsAsFiles
       @context.class_eval %Q{
 
         def #{field}_changed?
-          !@#{field}.blank?
+          !@#{field}.nil?
         end
         
       }, __FILE__, __LINE__

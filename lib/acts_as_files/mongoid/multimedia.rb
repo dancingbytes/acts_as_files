@@ -64,12 +64,12 @@ module ActsAsFiles
       scope   :sources,  where(:source_id => nil)
 
       scope   :skip_ids, ->(ids) {
-        ids = [ids] unless ids.is_a? Array
-        not_in(:_id => ids) unless ids.blank?
-      }
-
-      scope   :skip_source, ->(source_id) {
-        not_in(:_id => [source_id]) unless source_id.nil?
+        
+        unless ids.blank?
+          ids = [ids] unless ids.is_a? Array
+          not_in(:_id => ids) 
+        end
+          
       }
 
       scope   :by_field,  ->(field_name) {

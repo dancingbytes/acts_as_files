@@ -34,8 +34,7 @@ module ActsAsFiles
 
       end # file_mime_type
 
-
-       def file_upload
+      def file_upload
 
         f = (self.instance_variable_get(:@file_upload) || self.path(:source))
         return f if f.is_a?(Tempfile) || f.is_a?(File) || f.is_a?(ActionDispatch::Http::UploadedFile)
