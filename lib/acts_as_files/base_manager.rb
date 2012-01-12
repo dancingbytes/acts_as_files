@@ -39,8 +39,8 @@ module ActsAsFiles
                 found = true
                 el = append_file(obj, file_id, field)
 
-                if el && el.save
-                  ids_save << (result = el.id)
+                if el && (el.frozen? || el.save)
+                  ids_save.push(result = el.id)
                 end
 
               end # if
@@ -154,7 +154,7 @@ module ActsAsFiles
           el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
-            if el && el.save
+            if el && (el.frozen? || el.save)
 
               # Удаляем все базовые файлы, кроме текущего
               ::Multimedia.
@@ -167,7 +167,7 @@ module ActsAsFiles
             end # if
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
-
+            
           end # if
 
         end # unless  
@@ -178,7 +178,17 @@ module ActsAsFiles
 
     def has_many(field, parse_from = nil)
 
-      if parse_from.nil?
+      unless parse_from.nil?
+
+        @context.class_eval %Q{
+
+          def #{field.to_sym}(*args)            
+            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
+          end
+
+        }, __FILE__, __LINE__
+
+      else
 
         @context.class_eval %Q{
 
@@ -204,16 +214,6 @@ module ActsAsFiles
 
         }, __FILE__, __LINE__
       
-      else
-
-        @context.class_eval %Q{
-
-          def #{field.to_sym}(*args)            
-            ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
-          end
-
-        }, __FILE__, __LINE__
-
       end # if  
 
       @context.set_callback(:save, :after) do |obj|
@@ -224,24 +224,24 @@ module ActsAsFiles
 
           if obj.try("#{field}_changed?")
 
-            # Выбираем данные по заданному полую/методу из базы данных
-            ids_db = ::Multimedia.
-              by_context(obj).
-              by_field(field).
-              sources.
-              distinct(ActsAsFiles::ID)
-
             ids_saved = []
 
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
-              ids_saved.push(el.id) if el && (ids_db.include?(el.id) || el.save)
+              
+              if el && (el.frozen? || el.save)
+                ids_saved.push(el.id) 
+              end
+                
             end # each
 
-            # Удаляем
-            unless (ids_del = ids_db - ids_saved).empty?
-              ::Multimedia.source(ids_del).destroy_all
-            end  
+            # Удаляем все базовые файлы, кроме "сохраненных"
+            ::Multimedia.
+              by_context(obj).
+              by_field(field).
+              skip_ids(ids_saved).
+              sources.
+              destroy_all
 
             # Обвновляем порядок файлов
             ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
@@ -265,7 +265,6 @@ module ActsAsFiles
         end
         
       }, __FILE__, __LINE__
-
 
     end # additional_methods_for 
 

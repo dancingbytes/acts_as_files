@@ -52,53 +52,48 @@ module ActsAsFiles
                       :size
                       
 
-      scope   :source,  ->(ids) {
+      scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? Array
         any_of({:source_id.in => ids}, {:_id.in => ids})
       }
       
       scope :copies_of, ->(id) {
-        where(:source_id => id) if id
+        where(:source_id => id)
       }
 
       scope   :sources,  where(:source_id => nil)
 
-      scope   :skip_ids, ->(ids) {
+      scope   :skip_ids, ->(ids = []) {
         
-        unless ids.blank?
-          ids = [ids] unless ids.is_a? Array
-          not_in(:_id => ids) 
-        end
+        ids = [ids] unless ids.is_a? Array
+        ids = ids.uniq.compact
+        ids.empty? ? self.criteria : not_in(:_id => ids) 
           
       }
 
       scope   :by_field,  ->(field_name) {
-        where(:context_field => field_name.to_s) if field_name
+        where(:context_field => field_name.to_s)
       }
 
       scope   :by_context,  ->(obj) {
-        where(:context_type => obj.class.name, :context_id => obj.id) if obj
+        where(:context_type => obj.class.name, :context_id => obj.id)
       }
 
       scope   :general,  by_field('')
 
       scope   :dimentions, ->(*args) {
 
-        if args.length > 0
+        return sources if args.length == 0
         
-          if (args[0].is_a?(String) || args[0].is_a?(Symbol))
-            where(:mark => args[0].to_s)
-          else
-            hash = {}
-            hash[:width]  = args[0] unless args[0].nil?
-            hash[:height] = args[1] unless args[1].nil?
-            where(hash)
-          end
-        
+        if (args[0].is_a?(String) || args[0].is_a?(Symbol))
+          where(:mark => args[0].to_s)
         else
-          where(:mark => nil)
+          hash = {}
+          hash[:width]  = args[0] unless args[0].nil?
+          hash[:height] = args[1] unless args[1].nil?
+          where(hash)
         end
-
+        
       } # dimentions
 
     end # included  
