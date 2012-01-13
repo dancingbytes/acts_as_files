@@ -39,7 +39,7 @@ module ActsAsFiles
                 found = true
                 el = append_file(obj, file_id, field)
 
-                if el && (el.frozen? || el.save)
+                if ActsAsFiles::BaseManager.success?(el)
                   ids_save.push(result = el.id)
                 end
 
@@ -76,6 +76,10 @@ module ActsAsFiles
         end # each_index
           
       end # update_files_order
+
+      def success?(el)
+        el && (el.frozen? || el.save)
+      end # success?
 
     end # class << self
 
@@ -154,7 +158,7 @@ module ActsAsFiles
           el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
-            if el && (el.frozen? || el.save)
+            if ActsAsFiles::BaseManager.success?(el)
 
               # Удаляем все базовые файлы, кроме текущего
               ::Multimedia.
@@ -229,7 +233,7 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
               
-              if el && (el.frozen? || el.save)
+              if ActsAsFiles::BaseManager.success?(el)
                 ids_saved.push(el.id) 
               end
                 
