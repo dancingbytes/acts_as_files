@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'rails'
+
 module ActsAsFiles
 
   class Railtie < ::Rails::Railtie #:nodoc:
