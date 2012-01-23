@@ -81,6 +81,18 @@ module ActsAsFiles
         el && (el.frozen? || el.save)
       end # success?
 
+      private
+
+      def equal_context?(obj, el, field)
+
+        if el && !el.new_record? && el.context_by?(obj) && el.field_by?(field)
+          el.freeze
+          return true
+        end
+        false
+
+      end # equal_context?
+
     end # class << self
 
 

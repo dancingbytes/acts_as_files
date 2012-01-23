@@ -3,7 +3,7 @@ require 'uri'
 
 module ActsAsFiles
 
-  module Multimedia
+  module MultimediaMongoid
 
     module ClassMethods
 
@@ -56,17 +56,6 @@ module ActsAsFiles
         arr[0].join << arr[3][2]
 
       end # rest
-
-      def destroy_each(ids, split_by = ",")
-
-        ids = ids.split(split_by) if ids.is_a?(String)
-        ids = [ids] unless ids.is_a?(Array)
-
-        ids.each do |id|
-          where(:_id => id).first.try(:destroy)
-        end # each
-
-      end # destroy_each
 
     end # ClassMethods
 

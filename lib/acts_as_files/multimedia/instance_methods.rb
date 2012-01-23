@@ -1,7 +1,7 @@
 # encoding: utf-8
 module ActsAsFiles
 
-  module Multimedia
+  module MultimediaBase
 
     module InstanceMethods
 
@@ -180,27 +180,17 @@ module ActsAsFiles
 
       def valid_size?
 
-        sz = ActsAsFiles.config["file_size_limit"].try(:to_i) || 0
-        sz = 1*1024*1024 if sz <= 0
-        (1..sz).include?(self.size)
+        (1..ActsAsFiles.config["file_size_limit"]).include?(self.size)
 
       end # valid_size?
 
-      def ident
-        self.class.ident(self)
-      end # ident
-
-      def whole(numb = ident)
+      def whole(numb)
         self.class.whole(numb)
       end # whole
 
-      def rest(numb = ident)
+      def rest(numb)
         self.class.rest(numb)
       end # rest
-
-      def split_id(numb = ident)
-        self.class.split_id(numb)
-      end # split_id
 
       def initialize_file
 
@@ -372,6 +362,6 @@ module ActsAsFiles
 
     end # InstanceMethods
 
-  end # Multimedia
+  end # MultimediaBase
 
 end # ActsAsFiles

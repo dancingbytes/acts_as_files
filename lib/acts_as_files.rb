@@ -43,4 +43,6 @@ require 'acts_as_files/content_parser'
 require 'acts_as_files/context_store'
 require 'acts_as_files/base_manager'
 
+require 'acts_as_files/multimedia/instance_methods'
+
 require 'acts_as_files/railtie'

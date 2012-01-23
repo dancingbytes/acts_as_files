@@ -41,12 +41,15 @@ module ActsAsFiles
 
     class GeneralParams
 
+      MEGABYTE = 1024*1024
+
       def initialize
         
         @params = {}
 
         # default params
         file_size_limit
+        files_per_folder
         url_path
         thumb_url_path
         local_path
@@ -65,9 +68,19 @@ module ActsAsFiles
       end # method_missing
 
       def file_size_limit(val = nil)
-        @params["file_size_limit"] = val || 32*1024*1024
+
+        val = val.to_s.to_i(10).abs
+        @params["file_size_limit"] = (val > MEGABYTE ? val : 32*MEGABYTE)
+        
       end # file_size_limit
       
+      def files_per_folder(val = nil)
+        
+        val = val.to_s.to_i(10).abs
+        @params["files_per_folder"] = (val > 0 ? val : 100)
+
+      end # files_per_folder  
+
       def url_path(val = nil)
         @params["url_path"] = val || '/public'
       end # url_path

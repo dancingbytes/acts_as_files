@@ -1,6 +1,5 @@
 # encoding: utf-8
 require 'acts_as_files/mongoid/multimedia/class_methods'
-require 'acts_as_files/mongoid/multimedia/instance_methods'
 
 module ActsAsFiles
 
@@ -9,9 +8,11 @@ module ActsAsFiles
     extend  ActiveSupport::Concern
     include Mongoid::Document
     
-    extend  ActsAsFiles::Multimedia::ClassMethods
-    include ActsAsFiles::Multimedia::InstanceMethods
+    extend  ActsAsFiles::MultimediaBase::ClassMethods
+    include ActsAsFiles::MultimediaBase::InstanceMethods
 
+    extend  ActsAsFiles::MultimediaMongoid::ClassMethods
+    
     # metas
     included do
 
