@@ -7,9 +7,7 @@ module ActsAsFiles
     
     extend ActiveSupport::Concern
 
-    extend  ActsAsFiles::MultimediaBase::ClassMethods
     include ActsAsFiles::MultimediaBase::InstanceMethods
-
     extend  ActsAsFiles::MultimediaAR::ClassMethods
 
     # metas

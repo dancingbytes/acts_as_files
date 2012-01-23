@@ -8,9 +8,7 @@ module ActsAsFiles
     extend  ActiveSupport::Concern
     include Mongoid::Document
     
-    extend  ActsAsFiles::MultimediaBase::ClassMethods
     include ActsAsFiles::MultimediaBase::InstanceMethods
-
     extend  ActsAsFiles::MultimediaMongoid::ClassMethods
     
     # metas
