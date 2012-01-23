@@ -6,13 +6,14 @@ module ActsAsFiles
   module Multimedia
     
     extend  ActiveSupport::Concern
-    include Mongoid::Document
-    
-    include ActsAsFiles::MultimediaBase::InstanceMethods
-    extend  ActsAsFiles::MultimediaMongoid::ClassMethods
     
     # metas
     included do
+
+      include Mongoid::Document
+    
+      include ActsAsFiles::MultimediaBase::InstanceMethods
+      extend  ActsAsFiles::MultimediaMongoid::ClassMethods
 
       field :source_id
       field :ext

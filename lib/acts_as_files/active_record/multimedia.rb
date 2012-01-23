@@ -7,11 +7,11 @@ module ActsAsFiles
     
     extend ActiveSupport::Concern
 
-    include ActsAsFiles::MultimediaBase::InstanceMethods
-    extend  ActsAsFiles::MultimediaAR::ClassMethods
-
     # metas
     included do
+
+      include ActsAsFiles::MultimediaBase::InstanceMethods
+      extend  ActsAsFiles::MultimediaAR::ClassMethods
 
       # Защищенные параметры
       attr_protected  :source_id,

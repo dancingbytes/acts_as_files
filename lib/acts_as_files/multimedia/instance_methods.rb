@@ -50,12 +50,12 @@ module ActsAsFiles
       end # file_upload
 
       def source?
-        self.source_id.nil?
+        self.source_id.nil? || self.source_id.zero?
       end # source?
 
       # Source identificator. Идентификатор источника.
       def sid
-        self.source_id.nil? ? self.id : self.source_id
+        self.source? ? self.id : self.source_id
       end # sid
 
       # Директория, в которой распологается файл. Директории делятся на
@@ -64,9 +64,9 @@ module ActsAsFiles
       def dir(looking_for = nil)
 
         dr = case(looking_for)
-          when :thumb   then File.join(ActsAsFiles.config["local_thumb_path"], whole(self.sid))
-          when :source  then File.join(ActsAsFiles.config["local_source_path"], whole(self.sid))
-          else File.join(ActsAsFiles.config["local_path"], whole(self.id))
+          when :thumb   then File.join(ActsAsFiles.config["local_thumb_path"], whole(self.sid).to_s)
+          when :source  then File.join(ActsAsFiles.config["local_source_path"], whole(self.sid).to_s)
+          else File.join(ActsAsFiles.config["local_path"], whole(self.id).to_s)
         end
 
         # Создаем все необходимые директории, если таковые не существуют
@@ -305,7 +305,7 @@ module ActsAsFiles
         end # new
 
         do_action(el, action, mark)
-        el.save
+        el.save(validate: false)
 
       end # create_image_copies 
 
