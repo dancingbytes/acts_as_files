@@ -64,9 +64,9 @@ module ActsAsFiles
       def dir(looking_for = nil)
 
         dr = case(looking_for)
-          when :thumb   then File.join(ActsAsFiles.config["local_thumb_path"], whole(self.sid).to_s)
-          when :source  then File.join(ActsAsFiles.config["local_source_path"], whole(self.sid).to_s)
-          else File.join(ActsAsFiles.config["local_path"], whole(self.id).to_s)
+          when :thumb   then File.join(ActsAsFiles.config["local_thumb_path"], diff(self.sid))
+          when :source  then File.join(ActsAsFiles.config["local_source_path"], diff(self.sid))
+          else File.join(ActsAsFiles.config["local_path"], diff(self.id))
         end
 
         # Создаем все необходимые директории, если таковые не существуют
@@ -104,12 +104,9 @@ module ActsAsFiles
 
         (
           if looking_for == :thumb
-            [ActsAsFiles.config["thumb_url_path"], whole(self.sid), self.basename(:thumb)]
-          
-          elsif looking_for.present?
-            [ActsAsFiles.config["url_path"], whole(self.id), self.copy(looking_for).basename]
+            [ActsAsFiles.config["thumb_url_path"], diff(self.sid), self.basename(:thumb)]
           else
-            [ActsAsFiles.config["url_path"], whole(self.id), self.basename]
+            [ActsAsFiles.config["url_path"], diff(self.id), self.basename]
           end
         ).flatten.join("/")
 
@@ -191,6 +188,10 @@ module ActsAsFiles
       def rest(numb)
         self.class.rest(numb)
       end # rest
+
+      def diff(numb)
+        self.class.diff(numb)
+      end # diff  
 
       def initialize_file
 

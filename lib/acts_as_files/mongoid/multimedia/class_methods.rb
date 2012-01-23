@@ -49,6 +49,7 @@ module ActsAsFiles
         [arr[1..2].join] << arr[3][0..1]
 
       end # whole
+      alias :diff :whole
 
       def rest(id)
 
