@@ -127,7 +127,7 @@ module ActsAsFiles
       # Преобразование изображения
       def custom_sizing(mark = nil)
 
-        return unless self.image?
+        return self unless self.image?
         
         tf = ActsAsFiles::ImageProcessor.new(self.file_upload)
         tf = yield(tf) if block_given?
