@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'acts_as_files/version'
 require 'acts_as_files/builder'
 
 module ActsAsFiles
