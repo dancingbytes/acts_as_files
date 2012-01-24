@@ -71,6 +71,14 @@ module ActsAsFiles
         
       } # dimentions
 
+      scope :asc, ->(field) {
+        order("#{field} ASC")
+      } # asc
+
+      scope :desc, ->(field) {
+        order("#{field} DESC")
+      } # desc
+
     end # included
 
   end # Multimedia

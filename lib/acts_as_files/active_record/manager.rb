@@ -28,7 +28,7 @@ module ActsAsFiles
           # Если найденный объект полностью соотвествует контексту -- возвращаем объект
           return el if equal_context?(obj, el, field)
 
-        else  
+        else
 
           # Пытаемся преобразовать file_id в Fixnum
           if (int = file_id.to_s.to_i(10)) != 0
@@ -50,7 +50,7 @@ module ActsAsFiles
           o.context_field = field.to_s
           
           if el
-            o.file_upload = el.path(:source)
+            o.file_upload = el.image? ? el.path(:source) : el.path
             o.name        = el.name 
           else
             o.file_upload = file_id

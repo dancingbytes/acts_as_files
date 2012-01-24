@@ -32,21 +32,19 @@ module ActsAsFiles
 
             content = ActsAsFiles::ContentParser.parse(".//#{tag}", "#{attribute}", content) do |url|
 
-              result = false
+              if (file_id = ::Multimedia.url_to_id(url))
 
-              if (file_id = ::Multimedia.get_from_url(url))
-
-                found = true
                 el = ActsAsFiles::Manager.append_file(obj, file_id, field)
 
                 if ActsAsFiles::BaseManager.success?(el, obj)
-                  ids_save.push(result = el.id)
+                  found = true
+                  ids_save.push(el.id)
                 end
 
               end # if
 
-              result
-
+              el || false
+              
             end # do
 
             # Прекращаем дальнейший парсинг, если задана только одна итерация и объект найден
@@ -92,10 +90,22 @@ module ActsAsFiles
 
         return false if el.nil?
 
-        if el.context_by?(obj) && el.field_by?(field)
-          el.freeze
+        if el.source? && !el.contexted?
+
+          el.context_type  = obj.class.name
+          el.context_id    = obj.id
+          el.context_field = field.to_s
           return true
-        end
+
+        else
+
+          if el.context_by?(obj) && el.field_by?(field)
+            el.freeze
+            return true
+          end
+
+        end # unless
+
         false
 
       end # equal_context?
@@ -160,7 +170,7 @@ module ActsAsFiles
 
         @context.class_eval %Q{
 
-          def #{field.to_sym}(*args)            
+          def #{field.to_sym}(*args)
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
           end
 
@@ -205,7 +215,7 @@ module ActsAsFiles
 
         @context.class_eval %Q{
 
-          def #{field.to_sym}(*args)            
+          def #{field.to_sym}(*args)
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).asc(:position)
           end
 

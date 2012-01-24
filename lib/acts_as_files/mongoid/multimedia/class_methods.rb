@@ -1,6 +1,4 @@
 # encoding: utf-8
-require 'uri'
-
 module ActsAsFiles
 
   module MultimediaMongoid
@@ -10,12 +8,11 @@ module ActsAsFiles
       def url_to_id(url)
 
         begin
-          uri = URI.parse(url)
-        rescue URI::InvalidURIError
+          uri = ::URI.parse(url)
+        rescue ::URI::InvalidURIError
           return nil
         end  
 
-        url_path    = ActsAsFiles.config["url_path"]
         shuffle_id  = uri.path.sub(/\.\w+/,'').gsub('/','').scan(/\w\w/)
 
         time        = shuffle_id[7..10] || []
@@ -27,10 +24,6 @@ module ActsAsFiles
 
       end # url_to_id
 
-      def get_from_url(url)
-        where(:_id => url_to_id(url)).first
-      end # get_from_url
-      
       def split_id(id)
 
         arr     = id.to_s.scan(/\w\w/)

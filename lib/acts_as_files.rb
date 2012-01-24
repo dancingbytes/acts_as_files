@@ -39,6 +39,8 @@ module ActsAsFiles
 
 end # ActsAsFiles
 
+require 'uri'
+
 require 'acts_as_files/image_processor'
 require 'acts_as_files/content_parser'
 require 'acts_as_files/context_store'

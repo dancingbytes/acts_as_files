@@ -11,9 +11,15 @@ module ActsAsFiles
 
       def url_to_id(url)
 
+        begin
+          uri = ::URI.parse(url)
+        rescue ::URI::InvalidURIError
+          return nil
+        end 
+
         rgx = /([\/[0-9a-f]]+)(\/\d+)\.\w+$/
         
-        URI.parse(url).path.scan(rgx) { |result|
+        uri.path.scan(rgx) { |result|
 
           whole = clear_string(result[0])
           if ( whole.length == clear_array(result[0]).length )
@@ -24,10 +30,6 @@ module ActsAsFiles
         nil
 
       end # url_to_id  
-
-      def get_from_url(url)
-        where(:id => url_to_id(url)).first
-      end # get_from_url
 
       def whole(numb)
         numb / ActsAsFiles.config["files_per_folder"]
