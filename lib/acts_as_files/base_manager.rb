@@ -19,7 +19,7 @@ module ActsAsFiles
 
         # Экземпляры Multimedia на сохрарнение
         ids_save = []
-
+        
         # Парсим контент по списку тегов
         unless (content = obj.try(parse_from)).blank?
 
@@ -27,7 +27,7 @@ module ActsAsFiles
             "img" => "src", 
             "a"   => "href"
           }.each do |tag, attribute|
-            
+
             found = false
 
             content = ActsAsFiles::ContentParser.parse(".//#{tag}", "#{attribute}", content) do |url|
@@ -37,7 +37,7 @@ module ActsAsFiles
               if (file_id = ::Multimedia.get_from_url(url))
 
                 found = true
-                el = append_file(obj, file_id, field)
+                el = ActsAsFiles::Manager.append_file(obj, file_id, field)
 
                 if ActsAsFiles::BaseManager.success?(el, obj)
                   ids_save.push(result = el.id)

@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'nokogiri'
+
 module ActsAsFiles
 
   class ContentParser
@@ -13,9 +15,9 @@ module ActsAsFiles
       @xpath, @node_attr = xpath, node_attr
     end # new
 
-    def parse(content, &block)
+    def parse(content)
 
-      node = Nokogiri::HTML::DocumentFragment.parse("<#{TEMP_TAG}>#{content}</#{TEMP_TAG}>")
+      node = ::Nokogiri::HTML::DocumentFragment.parse("<#{TEMP_TAG}>#{content}</#{TEMP_TAG}>")
       node.xpath("#{@xpath}").find_all { |node|
 
         unless (attr = node["#{@node_attr}"]).nil?

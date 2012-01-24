@@ -42,7 +42,7 @@ module ActsAsFiles
         
         ids = [ids] unless ids.is_a? Array
         ids = ids.uniq.compact
-        ids.empty? ? self : where("`id` NOT IN (#{ids.join(',')})") 
+        ids.empty? ? nil : where("`id` NOT IN (#{ids.join(',')})") 
           
       }
 
