@@ -77,6 +77,8 @@ module ActsAsFiles
 
       def success?(el, obj)
 
+        puts "success? -> #{el.inspect}"
+
         return false if el.nil? || obj.nil?
         return true  if el.frozen?
         el.context_id = obj.id if el.context_id.nil?
@@ -90,22 +92,10 @@ module ActsAsFiles
 
         return false if el.nil?
 
-        if el.source? && !el.contexted?
-
-          el.context_type  = obj.class.name
-          el.context_id    = obj.id
-          el.context_field = field.to_s
+        if el.context_by?(obj) && el.field_by?(field)
+          el.freeze
           return true
-
-        else
-
-          if el.context_by?(obj) && el.field_by?(field)
-            el.freeze
-            return true
-          end
-
-        end # unless
-
+        end
         false
 
       end # equal_context?
