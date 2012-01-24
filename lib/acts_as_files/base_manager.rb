@@ -39,7 +39,7 @@ module ActsAsFiles
                 found = true
                 el = append_file(obj, file_id, field)
 
-                if ActsAsFiles::BaseManager.success?(el)
+                if ActsAsFiles::BaseManager.success?(el, obj)
                   ids_save.push(result = el.id)
                 end
 
@@ -49,7 +49,7 @@ module ActsAsFiles
 
             end # do
 
-            # Прекращаем дальнеый парсинг, если задана только одна итерация и найден объект
+            # Прекращаем дальнейший парсинг, если задана только одна итерация и объект найден
             break if !all && found
 
           end # each  
@@ -77,15 +77,22 @@ module ActsAsFiles
           
       end # update_files_order
 
-      def success?(el)
-        el && (el.frozen? || el.save)
+      def success?(el, obj)
+
+        return false if el.nil? || obj.nil?
+        return true  if el.frozen?
+        el.context_id = obj.id if el.context_id.nil?
+        el.save
+
       end # success?
 
       private
 
       def equal_context?(obj, el, field)
 
-        if el && !el.new_record? && el.context_by?(obj) && el.field_by?(field)
+        return false if el.nil?
+
+        if el.context_by?(obj) && el.field_by?(field)
           el.freeze
           return true
         end
@@ -170,7 +177,7 @@ module ActsAsFiles
           el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
-            if ActsAsFiles::BaseManager.success?(el)
+            if ActsAsFiles::BaseManager.success?(el, obj)
 
               # Удаляем все базовые файлы, кроме текущего
               ::Multimedia.
@@ -245,7 +252,7 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
               
-              if ActsAsFiles::BaseManager.success?(el)
+              if ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id) 
               end
                 

@@ -12,7 +12,10 @@ module ActsAsFiles
 
       # Задан ли контекст от указанного этого объекта
       def context_by?(obj)
+
+        return false if obj.nil? || obj.id.blank?
         self.context_type.eql?(obj.class.name) && self.context_id.eql?(obj.id)
+
       end # context_by?
 
       def field_by?(field)
