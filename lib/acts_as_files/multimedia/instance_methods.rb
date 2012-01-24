@@ -7,12 +7,12 @@ module ActsAsFiles
 
       # Задан ли контекст
       def contexted?
-        !(self.context_type.blank? && self.context_id.blank?)
+        !self.context_type.blank? && !(self.context_id.blank? || self.context_id.zero?)
       end # contexted?
 
       # Задан ли контекст от указанного этого объекта
       def context_by?(obj)
-        self.context_type.eql?(obj.class.name) && self.context_id == obj.id
+        self.context_type.eql?(obj.class.name) && self.context_id.eql?(obj.id)
       end # context_by?
 
       def field_by?(field)
