@@ -77,8 +77,6 @@ module ActsAsFiles
 
       def success?(el, obj)
 
-        puts "success? -> #{el.inspect}"
-
         return false if el.nil? || obj.nil?
         return true  if el.frozen?
         el.context_id = obj.id if el.context_id.nil?
