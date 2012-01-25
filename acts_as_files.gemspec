@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README.md']
   s.require_paths = ['lib']
 
-  s.licenses = ['MIT']
+  s.licenses = ['BSD']
 
   s.add_dependency 'railties', ['>= 3.0.0']
   s.add_dependency 'quick_magick', ['0.8']
