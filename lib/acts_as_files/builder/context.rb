@@ -28,7 +28,7 @@ module ActsAsFiles
 
       def has_one(name, &block)
 
-        r = ActsAsFiles::Builder::ContextParams.new
+        r = ::ActsAsFiles::Builder::ContextParams.new
         r.instance_eval &block if block_given?
         @one[name.to_s] = r.compile
 
@@ -36,7 +36,7 @@ module ActsAsFiles
 
       def has_many(name, &block)
 
-        r = ActsAsFiles::Builder::ContextParams.new
+        r = ::ActsAsFiles::Builder::ContextParams.new
         r.instance_eval &block if block_given?
         @many[name.to_s] = r.compile
 

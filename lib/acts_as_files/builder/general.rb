@@ -13,8 +13,8 @@ module ActsAsFiles
         development
 
         # exec conf file
-        config_file = File.join(Rails.root, "config", "acts_as_files.rb")
-        self.instance_eval(File.read(config_file), config_file) if File.exists?(config_file)
+        config_file = ::File.join(::Rails.root, "config", "acts_as_files.rb")
+        self.instance_eval(::File.read(config_file), config_file) if ::File.exists?(config_file)
 
       end # new  
 
@@ -28,7 +28,7 @@ module ActsAsFiles
 
         if [:development, :production, :test].include?(name)
 
-          r = ActsAsFiles::Builder::GeneralParams.new
+          r = ::ActsAsFiles::Builder::GeneralParams.new
           r.instance_eval &block if block_given?
           @params[name.to_s] = r.compile
 
@@ -90,15 +90,15 @@ module ActsAsFiles
       end # thumb_url_path
 
       def local_path(val = nil)
-        @params["local_path"] = File.expand_path(val || 'public', Rails.root)
+        @params["local_path"] = ::File.expand_path(val || 'public', ::Rails.root)
       end # local_path
 
       def local_thumb_path(val = nil)
-        @params["local_thumb_path"] = File.expand_path(val || 'public/thumb', Rails.root)
+        @params["local_thumb_path"] = ::File.expand_path(val || 'public/thumb', ::Rails.root)
       end # local_thumb_path
 
       def local_source_path(val = nil)
-        @params["local_source_path"] = File.expand_path(val || 'src', Rails.root)
+        @params["local_source_path"] = ::File.expand_path(val || 'src', ::Rails.root)
       end # local_source_path
 
     end # GeneralParams
