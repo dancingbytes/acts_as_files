@@ -8,10 +8,10 @@ module ActsAsFiles
     
     def acts_as_files(&block)
         
-      r = ActsAsFiles::Builder::Context.new
+      r = ::ActsAsFiles::Builder::Context.new
       r.instance_eval &block if block_given?
         
-      ActsAsFiles::Manager.new(self, r.compile)
+      ::ActsAsFiles::Manager.new(self, r.compile)
         
     end # act_as_files
     

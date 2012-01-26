@@ -7,9 +7,9 @@ module ActsAsFiles
     
     initializer 'acts_as_files' do |app|
     
-      if ActsAsFiles::MONGOID
+      if ::ActsAsFiles::MONGOID
         require 'acts_as_files/mongoid/base'
-      elsif ActsAsFiles::AR
+      elsif ::ActsAsFiles::AR
         require 'acts_as_files/active_record/base'
       end
 
@@ -17,9 +17,9 @@ module ActsAsFiles
 
     config.to_prepare do
 
-      if ActsAsFiles::MONGOID
+      if ::ActsAsFiles::MONGOID
         load 'acts_as_files/mongoid/setup.rb'
-      elsif ActsAsFiles::AR
+      elsif ::ActsAsFiles::AR
         load 'acts_as_files/active_record/setup.rb'
       end
 

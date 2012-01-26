@@ -1,7 +1,7 @@
 # encoding: utf-8
 module ActsAsFiles
 
-  class Manager < ActsAsFiles::BaseManager
+  class Manager < ::ActsAsFiles::BaseManager
 
     class << self
 
@@ -22,7 +22,7 @@ module ActsAsFiles
           el = if file_id.new_record?
             file_id
           else
-            ::Multimedia.where(ActsAsFiles::ID => file_id.id).first
+            ::Multimedia.where(::ActsAsFiles::ID => file_id.id).first
           end
 
           # Если найденный объект полностью соотвествует контексту -- возвращаем объект
@@ -34,7 +34,7 @@ module ActsAsFiles
           if (int = file_id.to_s.to_i(10)) != 0
 
             # Ищем объект в базе
-            el = ::Multimedia.where(ActsAsFiles::ID => int).first
+            el = ::Multimedia.where(::ActsAsFiles::ID => int).first
           
             # Если найденный объект полностью соотвествует контексту -- возвращаем объект
             return el if equal_context?(obj, el, field)

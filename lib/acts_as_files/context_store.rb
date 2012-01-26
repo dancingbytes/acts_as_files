@@ -1,7 +1,7 @@
 # encoding: utf-8
 require 'singleton'
 
-module ActsAsTagging
+module ActsAsFiles
 
   class ContextStore
     
@@ -29,4 +29,4 @@ module ActsAsTagging
 
   end # ContextStore
 
-end # ActsAsTagging
+end # ActsAsFiles

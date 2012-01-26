@@ -30,13 +30,13 @@ module ActsAsFiles
 
             found = false
 
-            content = ActsAsFiles::ContentParser.parse(".//#{tag}", "#{attribute}", content) do |url|
+            content = ::ActsAsFiles::ContentParser.parse(".//#{tag}", "#{attribute}", content) do |url|
 
               if (file_id = ::Multimedia.url_to_id(url))
 
-                el = ActsAsFiles::Manager.append_file(obj, file_id, field)
+                el = ::ActsAsFiles::Manager.append_file(obj, file_id, field)
 
-                if ActsAsFiles::BaseManager.success?(el, obj)
+                if ::ActsAsFiles::BaseManager.success?(el, obj)
                   found = true
                   ids_save.push(el.id)
                 end
@@ -53,7 +53,7 @@ module ActsAsFiles
           end # each  
 
           # Обновляем контент
-          obj.class.where(ActsAsFiles::ID => obj.id).update_all(parse_from => content)
+          obj.class.where(::ActsAsFiles::ID => obj.id).update_all(parse_from => content)
 
         end # unless
 
@@ -112,7 +112,7 @@ module ActsAsFiles
 
     def init
 
-      cs = ActsAsFiles::ContextStore[@context.to_s] = {}
+      cs = ::ActsAsFiles::ContextStore[@context.to_s] = {}
 
       (@opts[:one] || {}).each { |field, val|
 
@@ -149,7 +149,7 @@ module ActsAsFiles
           end
 
           def #{field.to_sym}=(val)
-            @#{field} = ActsAsFiles::Manager.append_file(self, val, "#{field}")
+            @#{field} = ::ActsAsFiles::Manager.append_file(self, val, "#{field}")
           end
 
         }, __FILE__, __LINE__
@@ -169,13 +169,13 @@ module ActsAsFiles
       @context.set_callback(:save, :after) do |obj|
 
         unless parse_from.nil?
-          ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym, false)
+          ::ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym, false)
         else
 
           el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
-            if ActsAsFiles::BaseManager.success?(el, obj)
+            if ::ActsAsFiles::BaseManager.success?(el, obj)
 
               # Удаляем все базовые файлы, кроме текущего
               ::Multimedia.
@@ -226,7 +226,7 @@ module ActsAsFiles
 
             @#{field} = []
             val.compact.uniq.each do |el|
-              @#{field} << ActsAsFiles::Manager.append_file(self, el, "#{field}")
+              @#{field} << ::ActsAsFiles::Manager.append_file(self, el, "#{field}")
             end # each
 
             @#{field}
@@ -240,7 +240,7 @@ module ActsAsFiles
       @context.set_callback(:save, :after) do |obj|
 
         unless parse_from.nil?          
-          ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym )
+          ::ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym )
         else
 
           if obj.try("#{field}_changed?")
@@ -250,7 +250,7 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
               
-              if ActsAsFiles::BaseManager.success?(el, obj)
+              if ::ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id) 
               end
                 
@@ -265,7 +265,7 @@ module ActsAsFiles
               destroy_all
 
             # Обвновляем порядок файлов
-            ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
+            ::ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
             

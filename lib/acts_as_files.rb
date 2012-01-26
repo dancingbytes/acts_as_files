@@ -14,8 +14,8 @@ module ActsAsFiles
       
       unless @config
       
-        r = ActsAsFiles::Builder::General.new
-        @config = (r.compile || {})[Rails.env || RAILS_ENV] || {}
+        r = ::ActsAsFiles::Builder::General.new
+        @config = (r.compile || {})[::Rails.env || ::RAILS_ENV] || {}
 
       end # unless
       @config
@@ -27,7 +27,7 @@ module ActsAsFiles
       return false if class_name.blank?
 
       begin
-        Object.const_defined?(class_name) ? Object.const_get(class_name) : Object.const_missing(class_name)
+        ::Object.const_defined?(class_name) ? ::Object.const_get(class_name) : ::Object.const_missing(class_name)
       rescue => e
         return false if e.instance_of?(NameError)
         raise e

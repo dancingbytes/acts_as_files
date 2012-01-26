@@ -40,8 +40,8 @@ module ActsAsFiles
       def file_upload
 
         f = (self.instance_variable_get(:@file_upload) || self.path(:source))
-        return f if f.is_a?(Tempfile) || f.is_a?(File) || f.is_a?(ActionDispatch::Http::UploadedFile)
-        f && File.file?(f.to_s) ? File.new(f) : nil
+        return f if f.is_a?(Tempfile) || f.is_a?(File) || f.is_a?(::ActionDispatch::Http::UploadedFile)
+        f && ::File.file?(f.to_s) ? ::File.new(f) : nil
 
       end # file_upload
 
@@ -67,13 +67,13 @@ module ActsAsFiles
       def dir(looking_for = nil)
 
         dr = case(looking_for)
-          when :thumb   then File.join(ActsAsFiles.config["local_thumb_path"], diff(self.sid))
-          when :source  then File.join(ActsAsFiles.config["local_source_path"], diff(self.sid))
-          else File.join(ActsAsFiles.config["local_path"], diff(self.id))
+          when :thumb   then ::File.join(::ActsAsFiles.config["local_thumb_path"], diff(self.sid))
+          when :source  then ::File.join(::ActsAsFiles.config["local_source_path"], diff(self.sid))
+          else ::File.join(::ActsAsFiles.config["local_path"], diff(self.id))
         end
 
         # Создаем все необходимые директории, если таковые не существуют
-        FileUtils.mkdir_p(dr, :mode => 0755) unless FileTest.directory?(dr)
+        ::FileUtils.mkdir_p(dr, :mode => 0755) unless ::FileTest.directory?(dr)
         dr
 
       end # dir
@@ -96,7 +96,7 @@ module ActsAsFiles
       def path(looking_for = nil)
 
         return (@file ? @file.path : nil) if new_record?
-        File.join(self.dir(looking_for), self.basename(looking_for))
+        ::File.join(self.dir(looking_for), self.basename(looking_for))
 
       end # path
 
@@ -107,9 +107,9 @@ module ActsAsFiles
 
         (
           if looking_for == :thumb
-            [ActsAsFiles.config["thumb_url_path"], diff(self.sid), self.basename(:thumb)]
+            [::ActsAsFiles.config["thumb_url_path"], diff(self.sid), self.basename(:thumb)]
           else
-            [ActsAsFiles.config["url_path"], diff(self.id), self.basename]
+            [::ActsAsFiles.config["url_path"], diff(self.id), self.basename]
           end
         ).flatten.join("/")
 
@@ -132,10 +132,10 @@ module ActsAsFiles
 
         return self unless self.image?
         
-        tf = ActsAsFiles::ImageProcessor.new(self.file_upload)
+        tf = ::ActsAsFiles::ImageProcessor.new(self.file_upload)
         tf = yield(tf) if block_given?
         
-        if tf.save( File.join(Dir::tmpdir, "#{self.id}-#{Time.now.to_f}-#{self.ext}.tmp") )
+        if tf.save( ::File.join(::Dir::tmpdir, "#{self.id}-#{::Time.now.to_f}-#{self.ext}.tmp") )
           self.file_upload = tf.path
           self.mark = mark if mark
         end
@@ -149,7 +149,7 @@ module ActsAsFiles
 
         nr = new_record?
         initialize_image
-        self.updated_at = Time.now.utc
+        self.updated_at = ::Time.now.utc
 
         if (result = super(*args))
           
@@ -180,7 +180,7 @@ module ActsAsFiles
 
       def valid_size?
 
-        (1..ActsAsFiles.config["file_size_limit"]).include?(self.size)
+        (1..::ActsAsFiles.config["file_size_limit"]).include?(self.size)
 
       end # valid_size?
 
@@ -204,18 +204,18 @@ module ActsAsFiles
 
         # Опреледяем расширение файла
         self.ext = if @file.respond_to?(:original_filename)
-          File.extname(@file.original_filename)
+          ::File.extname(@file.original_filename)
         else
-          File.extname(@file.path)
+          ::File.extname(@file.path)
         end
-        self.ext.force_encoding(Encoding::UTF_8) if self.ext.respond_to?(:force_encoding)
+        self.ext.force_encoding(::Encoding::UTF_8) if self.ext.respond_to?(:force_encoding)
 
         @basename = if @file.respond_to?(:original_filename)
-          File.basename(@file.original_filename, self.ext)
+          ::File.basename(@file.original_filename, self.ext)
         else
-          File.basename(@file.path, self.ext)
+          ::File.basename(@file.path, self.ext)
         end
-        @basename.force_encoding(Encoding::UTF_8) if @basename.respond_to?(:force_encoding)
+        @basename.force_encoding(::Encoding::UTF_8) if @basename.respond_to?(:force_encoding)
         
         # Устанавливаем название файла
         self.name = @basename if self.name.blank?
@@ -238,8 +238,8 @@ module ActsAsFiles
       def configs
 
         return {} if self.context_type.blank?
-        return {} unless ActsAsFiles.class_exists?(self.context_type)
-        (ActsAsFiles::ContextStore[self.context_type] || {})[self.context_field] || {}
+        return {} unless ::ActsAsFiles.class_exists?(self.context_type)
+        (::ActsAsFiles::ContextStore[self.context_type] || {})[self.context_field] || {}
         
       end # configs
 
@@ -251,7 +251,7 @@ module ActsAsFiles
 
         do_action(self, configs[:default]) if self.source?
 
-        @image = ActsAsFiles::ImageProcessor.new(self.file_upload)
+        @image = ::ActsAsFiles::ImageProcessor.new(self.file_upload)
 
         self.width  = @image.width
         self.height = @image.height
@@ -265,9 +265,9 @@ module ActsAsFiles
         if fp != ip
 
           # Сохраняем файл (копируем).
-          FileUtils.cp(fp, ip)
+          ::FileUtils.cp(fp, ip)
           # Выставляем права на файл
-          FileUtils.chmod(0644, ip)
+          ::FileUtils.chmod(0644, ip)
 
         end # if
 
@@ -278,9 +278,9 @@ module ActsAsFiles
         if fp != sp
           
           # Сохраняем исходник.
-          FileUtils.cp(fp, sp) 
+          ::FileUtils.cp(fp, sp) 
           # Выставляем права на файл
-          FileUtils.chmod(0644, sp)
+          ::FileUtils.chmod(0644, sp)
 
         end # if  
             
@@ -318,7 +318,7 @@ module ActsAsFiles
         return if @file.nil?
 
         # Удаляем общий файл
-        FileUtils.rm Dir.glob( File.join( self.dir, "#{rest(self.id)}.*" ) ), :force => true
+        ::FileUtils.rm ::Dir.glob( ::File.join( self.dir, "#{rest(self.id)}.*" ) ), :force => true
 
         # Удалим все копии (если файл являектся базовым)
         self.class.copies_of(self.id).destroy_all if self.source?
@@ -333,15 +333,15 @@ module ActsAsFiles
         path_name = "#{rest(self.id)}.*"
 
         # Удаляем общий файл
-        FileUtils.rm Dir.glob( File.join( self.dir, path_name ) ), :force => true
+        ::FileUtils.rm ::Dir.glob( ::File.join( self.dir, path_name ) ), :force => true
 
         return unless self.source?
           
         # Удаляем thumbnail
-        FileUtils.rm Dir.glob( File.join( self.dir(:thumb),  path_name ) ), :force => true
+        ::FileUtils.rm ::Dir.glob( ::File.join( self.dir(:thumb),  path_name ) ), :force => true
           
         # Удаляем исходник
-        FileUtils.rm Dir.glob( File.join( self.dir(:source), path_name ) ), :force => true
+        ::FileUtils.rm ::Dir.glob( ::File.join( self.dir(:source), path_name ) ), :force => true
 
         # Если удаляем исходный файл, то удалим все связанные с ним копии
         self.class.copies_of(self.id).destroy_all

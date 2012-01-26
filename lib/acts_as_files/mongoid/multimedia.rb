@@ -5,28 +5,28 @@ module ActsAsFiles
 
   module Multimedia
     
-    extend  ActiveSupport::Concern
+    extend  ::ActiveSupport::Concern
     
     # metas
     included do
 
-      include Mongoid::Document
+      include ::Mongoid::Document
     
-      include ActsAsFiles::MultimediaBase::InstanceMethods
-      extend  ActsAsFiles::MultimediaMongoid::ClassMethods
+      include ::ActsAsFiles::MultimediaBase::InstanceMethods
+      extend  ::ActsAsFiles::MultimediaMongoid::ClassMethods
 
       field :source_id
       field :ext
       field :mark
-      field :width,         :type => Integer
-      field :height,        :type => Integer
+      field :width,         :type => ::Integer
+      field :height,        :type => ::Integer
       field :context_type
       field :context_id
       field :context_field
       field :mime_type
-      field :updated_at,    :type => DateTime
-      field :position,      :type => Integer
-      field :size,          :type => Integer
+      field :updated_at,    :type => ::DateTime
+      field :position,      :type => ::Integer
+      field :size,          :type => ::Integer
       field :name
 
       index :mark,          :background => true   
@@ -53,7 +53,7 @@ module ActsAsFiles
                       
 
       scope   :source,  ->(ids = []) {
-        ids = [ids] unless ids.is_a? Array
+        ids = [ids] unless ids.is_a? ::Array
         any_of({:source_id.in => ids}, {:_id.in => ids})
       }
       
@@ -65,7 +65,7 @@ module ActsAsFiles
 
       scope   :skip_ids, ->(ids = []) {
         
-        ids = [ids] unless ids.is_a? Array
+        ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
         ids.empty? ? self.criteria : not_in(:_id => ids) 
           
@@ -85,7 +85,7 @@ module ActsAsFiles
 
         return sources if args.length == 0
         
-        if (args[0].is_a?(String) || args[0].is_a?(Symbol))
+        if (args[0].is_a?(::String) || args[0].is_a?(::Symbol))
           where(:mark => args[0].to_s)
         else
           hash = {}

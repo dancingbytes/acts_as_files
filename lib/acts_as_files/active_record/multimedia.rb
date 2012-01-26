@@ -5,13 +5,13 @@ module ActsAsFiles
 
   module Multimedia
     
-    extend ActiveSupport::Concern
+    extend ::ActiveSupport::Concern
 
     # metas
     included do
 
-      include ActsAsFiles::MultimediaBase::InstanceMethods
-      extend  ActsAsFiles::MultimediaAR::ClassMethods
+      include ::ActsAsFiles::MultimediaBase::InstanceMethods
+      extend  ::ActsAsFiles::MultimediaAR::ClassMethods
 
       # Защищенные параметры
       attr_protected  :source_id,
@@ -28,7 +28,7 @@ module ActsAsFiles
                       :size
 
       scope   :source,  ->(ids = []) {
-        ids = [ids] unless ids.is_a? Array
+        ids = [ids] unless ids.is_a? ::Array
         where({:source_id => 0, :id => ids })
       }
       
@@ -40,7 +40,7 @@ module ActsAsFiles
 
       scope   :skip_ids, ->(ids = []) {
         
-        ids = [ids] unless ids.is_a? Array
+        ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
         ids.empty? ? nil : where("`id` NOT IN (#{ids.join(',')})") 
           
@@ -60,7 +60,7 @@ module ActsAsFiles
 
         return sources if args.length == 0
         
-        if (args[0].is_a?(String) || args[0].is_a?(Symbol))
+        if (args[0].is_a?(::String) || args[0].is_a?(::Symbol))
           where(:mark => args[0].to_s)
         else
           hash = {}
