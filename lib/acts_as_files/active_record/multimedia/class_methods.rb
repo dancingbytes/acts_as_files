@@ -6,7 +6,7 @@ module ActsAsFiles
     module ClassMethods
 
       def record_id(w, r)
-        w.reverse.to_i(16) * ::ActsAsFiles.config["files_per_folder"] + (r.to_i - 1)
+        w.reverse.to_i(16) * ::ActsAsFiles.config["files_per_folder"] + r.to_i - 1
       end # record_id
 
       def url_to_id(url)
