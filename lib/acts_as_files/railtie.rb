@@ -1,18 +1,30 @@
 # encoding: utf-8
+require 'rails'
+
 module ActsAsFiles
 
   class Railtie < ::Rails::Railtie #:nodoc:
     
     initializer 'acts_as_files' do |app|
     
-      Mongoid::Document::ClassMethods.send(:include, ActsAsFiles::Base)
-      if defined?(Kaminari)
-        require 'kaminari/models/mongoid_extension'
-        ActsAsFiles::Multimedia.send :include, Kaminari::MongoidExtension::Document
+      if ::ActsAsFiles::MONGOID
+        require 'acts_as_files/mongoid/base'
+      elsif ::ActsAsFiles::AR
+        require 'acts_as_files/active_record/base'
       end
 
-    end
+    end # initializer
 
-  end
+    config.to_prepare do
 
-end
+      if ::ActsAsFiles::MONGOID
+        load 'acts_as_files/mongoid/setup.rb'
+      elsif ::ActsAsFiles::AR
+        load 'acts_as_files/active_record/setup.rb'
+      end
+
+    end # to_prepare
+
+  end # Railtie
+
+end # ActsAsFiles

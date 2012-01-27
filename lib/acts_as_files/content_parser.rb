@@ -1,14 +1,15 @@
 # encoding: utf-8
+require 'nokogiri'
+
 module ActsAsFiles
 
-  #
-  # sc = ActsAsFiles::ContentParser.new(/([\/[0-9a-f]]+)(\/\d+)\.\w+$/, ".//img", "src")
-  # sc.parse(Page.find(6).content) { |id| id > 175 ? "/asert/2/3/4/5/f/d/123.jpg" : false }
-  #
-  # Nokogiri::HTML::DocumentFragment.parse(Event.find(73).content).xpath('.//img').find_all
-  #
-
   class ContentParser
+
+    TEMP_TAG = "temp_tag"
+
+    def self.parse(xpath, node_attr, content, &block)
+      new(xpath, node_attr).parse(content, &block)
+    end # self.parse
 
     def initialize(xpath, node_attr)
       @xpath, @node_attr = xpath, node_attr
@@ -16,13 +17,12 @@ module ActsAsFiles
 
     def parse(content)
 
-      node = Nokogiri::HTML::DocumentFragment.parse(content)
+      node = ::Nokogiri::HTML::DocumentFragment.parse("<#{TEMP_TAG}>#{content}</#{TEMP_TAG}>")
       node.xpath("#{@xpath}").find_all { |node|
 
         unless (attr = node["#{@node_attr}"]).nil?
 
-          replace = yield( ActsAsFiles::Multimedia.url_to_id(attr) )
-          unless (replace == false)
+          unless ( (replace = yield(attr)) == false )
 
             node["#{@node_attr}"] = replace.url
             node["width"]  = "#{replace.width}"
@@ -34,7 +34,7 @@ module ActsAsFiles
 
       } # find_all
 
-      node.to_html
+      node.search(".//#{TEMP_TAG}").inner_html
 
     end # parse
 

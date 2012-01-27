@@ -3,7 +3,7 @@ require 'singleton'
 
 module ActsAsFiles
 
-  class ContextManager
+  class ContextStore
     
     include Singleton
 
@@ -27,6 +27,6 @@ module ActsAsFiles
       @hash[context] = datas
     end # []=
 
-  end # ContextManager
+  end # ContextStore
 
 end # ActsAsFiles
