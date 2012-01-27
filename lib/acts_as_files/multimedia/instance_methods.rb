@@ -7,14 +7,14 @@ module ActsAsFiles
 
       # Задан ли контекст
       def contexted?
-        !self.context_type.blank? && !(self.context_id.blank? || self.context_id.zero?)
+        !(self.context_type.blank? || ::ActsAsFiles.nil_or_zero?(self.context_id))
       end # contexted?
 
       # Задан ли контекст от указанного этого объекта
       def context_by?(obj)
 
         return false if obj.nil? || obj.id.blank?
-        self.context_type.eql?(obj.class.name) && self.context_id.eql?(obj.id)
+        self.context_type.eql?(obj.class.to_s) && self.context_id.eql?(obj.id)
 
       end # context_by?
 
@@ -53,7 +53,7 @@ module ActsAsFiles
       end # file_upload
 
       def source?
-        self.source_id.nil? || self.source_id.zero?
+        ::ActsAsFiles.nil_or_zero?(self.source_id)
       end # source?
 
       # Source identificator. Идентификатор источника.

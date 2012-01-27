@@ -35,6 +35,10 @@ module ActsAsFiles
 
     end # class_exists?
 
+    def nil_or_zero?(num)
+      num.nil? || (num.is_a?(::Numeric) && num.zero?)
+    end # nil_or_zero? 
+
   end # class << self
 
 end # ActsAsFiles

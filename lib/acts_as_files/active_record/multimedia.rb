@@ -51,7 +51,7 @@ module ActsAsFiles
       }
 
       scope   :by_context,  ->(obj) {
-        where(:context_type => obj.class.name, :context_id => obj.id)
+        where(:context_type => obj.class.to_s, :context_id => obj.id)
       }
 
       scope   :general,  by_field('')

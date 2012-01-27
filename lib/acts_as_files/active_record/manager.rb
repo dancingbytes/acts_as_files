@@ -45,7 +45,7 @@ module ActsAsFiles
 
         ::Multimedia.new do |o|
                  
-          o.context_type  = obj.class.name
+          o.context_type  = obj.class.to_s
           o.context_id    = obj.id
           o.context_field = field.to_s
           
