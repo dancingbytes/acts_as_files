@@ -1,5 +1,5 @@
 # encoding: utf-8
-require 'rails'
+require 'rails/railtie'
 
 module ActsAsFiles
 
