@@ -10,8 +10,10 @@ module ActsAsFiles
         begin
           uri = ::URI.parse(url)
         rescue ::URI::InvalidURIError
-          return nil
+          return
         end  
+
+        return if uri.path.nil?
 
         shuffle_id  = uri.path.sub(/\.\w+/,'').gsub('/','').scan(/\w\w/)
 

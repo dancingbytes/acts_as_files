@@ -14,8 +14,10 @@ module ActsAsFiles
         begin
           uri = ::URI.parse(url)
         rescue ::URI::InvalidURIError
-          return nil
+          return
         end 
+
+        return if uri.path.nil?
 
         rgx = /([\/[0-9a-f]]+)(\/\d+)\.\w+$/
         
