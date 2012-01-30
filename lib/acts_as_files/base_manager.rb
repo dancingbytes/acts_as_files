@@ -119,16 +119,20 @@ module ActsAsFiles
         cs[field.to_s] = val
         has_one(field, val[:parse_from])
         additional_methods_for(field)
-        
+
       }
 
       (@opts[:many] || {}).each { |field, val|
-        
+
         cs[field.to_s] = val
         has_many(field, val[:parse_from])
         additional_methods_for(field)        
 
       }
+
+      @context.set_callback(:destroy, :after) do |obj|
+        ::Multimedia.by_context(obj).destroy_all
+      end # set_callback
 
     end # init
 
