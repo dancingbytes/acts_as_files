@@ -24,7 +24,7 @@ module ActsAsFiles
       field :context_id
       field :context_field
       field :mime_type
-      field :updated_at,    :type => ::DateTime
+      field :updated_at,    :type => ::Time
       field :position,      :type => ::Integer
       field :size,          :type => ::Integer
       field :name
