@@ -33,6 +33,7 @@ module ActsAsFiles
         
       @image  = ::QuickMagick::Image.read(src).first
       @src    = src
+      background
 
     end # initialize
 
@@ -55,18 +56,16 @@ module ActsAsFiles
 
     end # resize
 
+    def background(color='white')
+      @image.append_basic  "-background #{color}"
+    end # background
+
     def resize_and_center(w=nil, h=nil)
 
       if w.nil? && h.nil?
         w, h = self.width, self.height
       elsif w.nil? || h.nil?
         w ||= h; h = w
-      end
-
-      if ["png", "gif"].include?(self.format)
-        @image.append_basic  "-background transparent"
-      else
-        @image.append_basic  "-background white"
       end
 
       @image.append_basic "-compose Copy"
