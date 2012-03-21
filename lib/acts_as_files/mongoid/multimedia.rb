@@ -29,13 +29,20 @@ module ActsAsFiles
       field :size,          :type => ::Integer
       field :name
 
-      index :mark,          :background => true   
-      index :context_type,  :background => true
-      index :context_id,    :background => true
-      index :context_field, :background => true   
-      index :position,      :background => true
-      index :source_id,     :background => true
+      index(
+        [
+          [ :mark,          Mongo::ASCENDING ],
+          [ :context_type,  Mongo::ASCENDING ],
+          [ :context_id,    Mongo::ASCENDING ],
+          [ :context_field, Mongo::ASCENDING ],
+          [ :position,      Mongo::ASCENDING ],
+          [ :source_id,     Mongo::ASCENDING ]
+          
+        ],
+        :name => "multimedia_indx"
+      )
 
+      index :updated_at
 
       # Защищенные параметры
       attr_protected  :source_id,
