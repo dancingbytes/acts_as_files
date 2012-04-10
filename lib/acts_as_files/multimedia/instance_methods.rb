@@ -251,6 +251,8 @@ module ActsAsFiles
 
         return if @file.nil? || !self.image?
         
+        @source_image = @file
+
         do_action(self, configs[:default]) if self.source?
 
         @image = ::ActsAsFiles::ImageProcessor.new(self.file_upload)
@@ -276,9 +278,9 @@ module ActsAsFiles
         # Если файл не является базовым и не картинка -- завершаем работу.
         return if !self.source? || !@image
 
-        sp = self.path(:source)
+        fp, sp = @source_image.path, self.path(:source)
         if fp != sp
-          
+
           # Сохраняем исходник.
           ::FileUtils.cp(fp, sp) 
           # Выставляем права на файл
@@ -291,29 +293,10 @@ module ActsAsFiles
 
         # Создаем копии изображений
         (configs[:marks] || {}).each do |mark, value|
-          create_image_copies(mark, value)
-        end
+          ::ActsAsFiles::CRAWLER << [self, mark, value]
+        end  
 
       end # create_file
-
-      def create_image_copies(mark, action = nil)
-
-        el = self.class.new do |o|
-
-          o.name          = self.name
-          o.source_id     = self.id
-          o.context_type  = self.context_type
-          o.context_id    = self.context_id
-          o.context_field = self.context_field
-          o.position      = self.position
-          o.file_upload   = self.path(:source)
-
-        end # new
-
-        do_action(el, action, mark)
-        el.save(validate: false)
-
-      end # create_image_copies 
 
       def update_file
 
