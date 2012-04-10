@@ -2,12 +2,15 @@
 require 'acts_as_files/version'
 require 'acts_as_files/builder'
 require 'girl_friday'
+require 'filemagic'
 
 module ActsAsFiles
 
   MONGOID = defined?(Mongoid)
   AR      = defined?(ActiveRecord)
   ID      = (ActsAsFiles::MONGOID ? :_id : :id)
+
+  MIME    = ::FileMagic.mime
 
   CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
 
@@ -23,6 +26,9 @@ module ActsAsFiles
     el.context_id    = parent.context_id
     el.context_field = parent.context_field
     el.position      = parent.position
+    el.mime_type     = parent.mime_type
+    el.name          = parent.name
+    el.ext           = parent.ext
     el.file_upload   = parent.path(:source)
 
     unless action.nil?

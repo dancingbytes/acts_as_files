@@ -13,6 +13,12 @@ Rails:  3.0, 3.1, 3.2
 ORM:    ActiveRecord, MondgoID
 
 
+### Dependency
+
+# For mime-types
+libmagic-dev (for Ubuntu: sudo apt-get install libmagic-dev)
+
+
 ### DSL example
 
     acts_as_files do

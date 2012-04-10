@@ -32,8 +32,11 @@ module ActsAsFiles
       #
       def file_mime_type
 
-        (result, answer) = [`file --mime-type -b "#{self.path}"`.chomp.strip, $?]
-        answer.exitstatus == 0 ? result : nil
+        begin
+          ::ActsAsFiles::MIME.file(self.path, true)
+        rescue
+          nil
+        end  
 
       end # file_mime_type
 
@@ -145,7 +148,7 @@ module ActsAsFiles
         
       end # custom_sizing
 
-      def save(*args)
+      def save(opts = {})
 
         return false if self.file_upload.nil? || !valid_size?
 
@@ -153,21 +156,22 @@ module ActsAsFiles
         initialize_image
         self.updated_at = ::Time.now.utc
 
-        if (result = super(*args))
-          
-          begin
+        begin
+
+          if (result = super(opts))
             nr ? create_file : update_file
-          rescue => e
-            result = false
-            self.errors.add(:file_upload, e.message)
-            self.destroy
-          ensure            
-            ::File.unlink(@temp_file) if @temp_file && ::File.exist?(@temp_file)
           end
+          result  
 
-        end # if
+        rescue => e
+          
+          self.errors.add(:file_upload, e.message)
+          self.destroy
+          false
 
-        result
+        ensure            
+          ::File.unlink(@temp_file) if @temp_file && ::File.exist?(@temp_file)
+        end
 
       end # save
 
@@ -183,9 +187,7 @@ module ActsAsFiles
       private
 
       def valid_size?
-
         (1..::ActsAsFiles.config["file_size_limit"]).include?(self.size)
-
       end # valid_size?
 
       def whole(numb)
@@ -203,36 +205,39 @@ module ActsAsFiles
       def initialize_file
 
         @file = self.file_upload
-
         return if @file.nil?
 
-        # Опреледяем расширение файла
-        self.ext = if @file.respond_to?(:original_filename)
-          ::File.extname(@file.original_filename)
-        else
-          ::File.extname(@file.path)
-        end
-        self.ext.force_encoding(::Encoding::UTF_8) if self.ext.respond_to?(:force_encoding)
+        if self.source?
 
-        @basename = if @file.respond_to?(:original_filename)
-          ::File.basename(@file.original_filename, self.ext)
-        else
-          ::File.basename(@file.path, self.ext)
-        end
-        @basename.force_encoding(::Encoding::UTF_8) if @basename.respond_to?(:force_encoding)
-        
-        # Устанавливаем название файла
-        self.name = @basename if self.name.blank?
+          # Опреледяем расширение файла
+          self.ext = if @file.respond_to?(:original_filename)
+            ::File.extname(@file.original_filename)
+          else
+            ::File.extname(@file.path)
+          end
+          self.ext.force_encoding(::Encoding::UTF_8) if self.ext.respond_to?(:force_encoding)
 
-        # Mime type
-        self.mime_type = self.file_mime_type
+          @basename = if @file.respond_to?(:original_filename)
+            ::File.basename(@file.original_filename, self.ext)
+          else
+            ::File.basename(@file.path, self.ext)
+          end
+          @basename.force_encoding(::Encoding::UTF_8) if @basename.respond_to?(:force_encoding)
+          
+          # Устанавливаем название файла
+          self.name = @basename if self.name.blank?
 
-        unless self.ext.blank?
-          # Убираем лишнюю точку вначале расширения
-          self.ext.gsub!(/^\./, '')
-        else
-          self.ext = "unknown"
-        end
+          # Mime type
+          self.mime_type = self.file_mime_type
+
+          unless self.ext.blank?
+            # Убираем лишнюю точку вначале расширения
+            self.ext.gsub!(/^\./, '')
+          else
+            self.ext = "unknown"
+          end
+
+        end # if
         
         # Определяем размеры файла
         self.size = @file.respond_to?(:size) ? @file.size : @file.stat.size
