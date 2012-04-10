@@ -139,6 +139,8 @@ module ActsAsFiles
           self.file_upload = tf.path
           self.mark = mark if mark
         end
+
+        @temp_file = tf.path
         self
         
       end # custom_sizing
@@ -159,6 +161,8 @@ module ActsAsFiles
             result = false
             self.errors.add(:file_upload, e.message)
             self.destroy
+          ensure            
+            ::File.unlink(@temp_file) if @temp_file && ::File.exist?(@temp_file)
           end
 
         end # if
@@ -247,8 +251,6 @@ module ActsAsFiles
 
         return if @file.nil? || !self.image?
         
-        @source_image = @file
-
         do_action(self, configs[:default]) if self.source?
 
         @image = ::ActsAsFiles::ImageProcessor.new(self.file_upload)
@@ -274,7 +276,7 @@ module ActsAsFiles
         # Если файл не является базовым и не картинка -- завершаем работу.
         return if !self.source? || !@image
 
-        fp, sp = @source_image.path, self.path(:source)
+        sp = self.path(:source)
         if fp != sp
           
           # Сохраняем исходник.
@@ -283,7 +285,7 @@ module ActsAsFiles
           ::FileUtils.chmod(0644, sp)
 
         end # if  
-            
+
         # Создаем thumbnail.
         @image.thumb(80).save(self.path(:thumb))
 
