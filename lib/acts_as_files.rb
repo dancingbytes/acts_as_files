@@ -9,7 +9,9 @@ module ActsAsFiles
   AR      = defined?(ActiveRecord)
   ID      = (ActsAsFiles::MONGOID ? :_id : :id)
 
-  CRAWLER = ::GirlFriday::Queue.new('image_crawler', :size => 5) do |arr|
+  CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
+
+  CRAWLER = ::GirlFriday::Queue.new('image_crawler', :size => ::ActsAsFiles::CORES) do |arr|
 
     (parent, mark, action) = arr
 

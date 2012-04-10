@@ -32,7 +32,7 @@ module ActsAsFiles
       #
       def file_mime_type
 
-        (result, answer) = [`file --mime-type -b "#{self.path}"`.strip, $?]
+        (result, answer) = [`file --mime-type -b "#{self.path}"`.chomp.strip, $?]
         answer.exitstatus == 0 ? result : nil
 
       end # file_mime_type
