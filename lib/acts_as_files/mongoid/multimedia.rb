@@ -54,7 +54,8 @@ module ActsAsFiles
       )
 
       index :updated_at
-
+      index :source_id
+      
       # Защищенные параметры
       attr_protected  :source_id,
                       :ext,
