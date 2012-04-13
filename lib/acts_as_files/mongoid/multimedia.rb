@@ -42,6 +42,17 @@ module ActsAsFiles
         :name => "multimedia_indx"
       )
 
+      index(
+        [
+          [ :context_type,  Mongo::ASCENDING ],
+          [ :context_id,    Mongo::ASCENDING ],
+          [ :context_field, Mongo::ASCENDING ],
+          [ :source_id,     Mongo::ASCENDING ]
+          
+        ],
+        :name => "multimedia_indx_2"
+      )
+
       index :updated_at
 
       # Защищенные параметры
