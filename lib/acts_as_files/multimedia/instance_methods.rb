@@ -184,10 +184,14 @@ module ActsAsFiles
 
       end # destroy
 
+      def file_valid?
+        !self.mime_type.blank? && valid_size?
+      end # file_valid?
+
       private
 
       def valid_size?
-        (1..::ActsAsFiles.config["file_size_limit"]).include?(self.size)
+        self.size && (1..::ActsAsFiles.config["file_size_limit"]).include?(self.size)
       end # valid_size?
 
       def whole(numb)
