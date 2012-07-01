@@ -29,32 +29,68 @@ module ActsAsFiles
       field :size,          :type => ::Integer
       field :name
 
-      index(
-        [
-          [ :mark,          Mongo::ASCENDING ],
-          [ :context_type,  Mongo::ASCENDING ],
-          [ :context_id,    Mongo::ASCENDING ],
-          [ :context_field, Mongo::ASCENDING ],
-          [ :position,      Mongo::ASCENDING ],
-          [ :source_id,     Mongo::ASCENDING ]
-          
-        ],
-        :name => "multimedia_indx"
-      )
+      # For mongoid 2.4
+      unless (::Mongoid::VERSION =~ /\A2.4/).nil?
 
-      index(
-        [
-          [ :context_type,  Mongo::ASCENDING ],
-          [ :context_id,    Mongo::ASCENDING ],
-          [ :context_field, Mongo::ASCENDING ],
-          [ :source_id,     Mongo::ASCENDING ]
-          
-        ],
-        :name => "multimedia_indx_2"
-      )
+        index(
+          [
+            [ :mark,          Mongo::ASCENDING ],
+            [ :context_type,  Mongo::ASCENDING ],
+            [ :context_id,    Mongo::ASCENDING ],
+            [ :context_field, Mongo::ASCENDING ],
+            [ :position,      Mongo::ASCENDING ],
+            [ :source_id,     Mongo::ASCENDING ]
+            
+          ],
+          :name => "multimedia_indx"
+        )
 
-      index :updated_at
-      index :source_id
+        index(
+          [
+            [ :context_type,  Mongo::ASCENDING ],
+            [ :context_id,    Mongo::ASCENDING ],
+            [ :context_field, Mongo::ASCENDING ],
+            [ :source_id,     Mongo::ASCENDING ]
+            
+          ],
+          :name => "multimedia_indx_2"
+        )
+
+        index :updated_at
+        index :source_id
+
+      else
+
+        # For mongoid 3.0
+      
+        index({
+          
+          mark:           1,
+          context_type:   1,
+          context_id:     1,
+          context_field:  1,
+          position:       1,
+          source_id:      1
+            
+        }, {    
+          name: "multimedia_indx"
+        })
+
+        index({
+          
+          context_type:   1,
+          context_id:     1,
+          context_field:  1,
+          source_id:      1
+            
+        }, {    
+          name: "multimedia_indx_2"
+        })
+
+        index({ updated_at: 1 })
+        index({ source_id:  1 })
+
+      end  
       
       # Защищенные параметры
       attr_protected  :source_id,
