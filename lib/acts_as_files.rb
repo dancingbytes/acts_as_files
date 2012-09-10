@@ -12,7 +12,11 @@ module ActsAsFiles
 
   MIME    = ::FileMagic.mime
 
-  CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
+  if RUBY_PLATFORM.downcase.include?("darwin")
+    CORES   = `sysctl hw.ncpu | awk '{print $2}'`.chop.to_i
+  else
+    CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
+  end
 
   CRAWLER = ::GirlFriday::Queue.new('image_crawler', :size => ::ActsAsFiles::CORES) do |arr|
 
