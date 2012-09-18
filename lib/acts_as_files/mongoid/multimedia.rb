@@ -4,14 +4,14 @@ require 'acts_as_files/mongoid/multimedia/class_methods'
 module ActsAsFiles
 
   module Multimedia
-    
+
     extend  ::ActiveSupport::Concern
-    
+
     # metas
     included do
 
       include ::Mongoid::Document
-    
+
       include ::ActsAsFiles::MultimediaBase::InstanceMethods
       extend  ::ActsAsFiles::MultimediaMongoid::ClassMethods
 
@@ -40,7 +40,7 @@ module ActsAsFiles
             [ :context_field, Mongo::ASCENDING ],
             [ :position,      Mongo::ASCENDING ],
             [ :source_id,     Mongo::ASCENDING ]
-            
+
           ],
           :name => "multimedia_indx"
         )
@@ -51,7 +51,7 @@ module ActsAsFiles
             [ :context_id,    Mongo::ASCENDING ],
             [ :context_field, Mongo::ASCENDING ],
             [ :source_id,     Mongo::ASCENDING ]
-            
+
           ],
           :name => "multimedia_indx_2"
         )
@@ -62,36 +62,36 @@ module ActsAsFiles
       else
 
         # For mongoid 3.0
-      
+
         index({
-          
+
           mark:           1,
           context_type:   1,
           context_id:     1,
           context_field:  1,
           position:       1,
           source_id:      1
-            
-        }, {    
+
+        }, {
           name: "multimedia_indx"
         })
 
         index({
-          
+
           context_type:   1,
           context_id:     1,
           context_field:  1,
           source_id:      1
-            
-        }, {    
+
+        }, {
           name: "multimedia_indx_2"
         })
 
         index({ updated_at: 1 })
         index({ source_id:  1 })
 
-      end  
-      
+      end
+
       # Защищенные параметры
       attr_protected  :source_id,
                       :ext,
@@ -105,13 +105,13 @@ module ActsAsFiles
                       :updated_at,
                       :position,
                       :size
-                      
+
 
       scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? ::Array
         any_of({:source_id.in => ids}, {:_id.in => ids})
       }
-      
+
       scope :copies_of, ->(id) {
         where(:source_id => id)
       }
@@ -119,11 +119,11 @@ module ActsAsFiles
       scope   :sources,  where(:source_id => nil)
 
       scope   :skip_ids, ->(ids = []) {
-        
+
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
         ids.empty? ? self.criteria : not_in(:_id => ids) 
-          
+
       }
 
       scope   :by_field,  ->(field_name) {
@@ -139,7 +139,7 @@ module ActsAsFiles
       scope   :dimentions, ->(*args) {
 
         return sources if args.length == 0
-        
+
         if (args[0].is_a?(::String) || args[0].is_a?(::Symbol))
           where(:mark => args[0].to_s)
         else
@@ -148,11 +148,11 @@ module ActsAsFiles
           hash[:height] = args[1] unless args[1].nil?
           where(hash)
         end
-        
+
       } # dimentions
 
-    end # included  
+    end # included
 
   end # Multimedia
-  
+
 end # ActsAsFiles
