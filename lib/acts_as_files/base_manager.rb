@@ -19,12 +19,12 @@ module ActsAsFiles
 
         # Экземпляры Multimedia на сохрарнение
         ids_save = []
-        
+
         # Парсим контент по списку тегов
         unless (content = obj.try(parse_from)).blank?
 
-          { 
-            "img" => "src", 
+          {
+            "img" => "src",
             "a"   => "href"
           }.each do |tag, attribute|
 
@@ -44,13 +44,13 @@ module ActsAsFiles
               end # if
 
               el || false
-              
+
             end # do
 
             # Прекращаем дальнейший парсинг, если задана только одна итерация и объект найден
             break if !all && found
 
-          end # each  
+          end # each
 
           # Обновляем контент
           obj.class.where(::ActsAsFiles::ID => obj.id).update_all(parse_from => content)
@@ -66,14 +66,6 @@ module ActsAsFiles
           destroy_all
 
       end # parse_files_from
-
-      def update_files_order(ids)
-        
-        ids.each_index do |i|
-          ::Multimedia.source(ids[i]).update_all(:position => i + 1)
-        end # each_index
-          
-      end # update_files_order
 
       def success?(el, obj)
 
@@ -102,7 +94,7 @@ module ActsAsFiles
 
 
     def initialize(context, opts = {})
-      
+
       @context, @opts = context, opts
       init
 
@@ -126,7 +118,7 @@ module ActsAsFiles
 
         cs[field.to_s] = val
         has_many(field, val[:parse_from])
-        additional_methods_for(field)        
+        additional_methods_for(field)
 
       }
 
@@ -146,7 +138,7 @@ module ActsAsFiles
         @context.class_eval %Q{
 
           def #{field.to_sym}(*args)
-            
+
             return @#{field} if @#{field}
             ::Multimedia.by_context(self).by_field("#{field}").dimentions(*args).first
 
@@ -158,7 +150,7 @@ module ActsAsFiles
 
         }, __FILE__, __LINE__
 
-      else  
+      else
 
         @context.class_eval %Q{
 
@@ -192,14 +184,14 @@ module ActsAsFiles
             end # if
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
-            
+
           end # if
 
-        end # unless  
+        end # unless
 
       end # set_callback
 
-    end # has_one  
+    end # has_one
 
     def has_many(field, parse_from = nil)
 
@@ -238,12 +230,12 @@ module ActsAsFiles
           end
 
         }, __FILE__, __LINE__
-      
-      end # if  
+
+      end # if
 
       @context.set_callback(:save, :after) do |obj|
 
-        unless parse_from.nil?          
+        unless parse_from.nil?
           ::ActsAsFiles::Manager::parse_files_from(obj, field, parse_from.to_sym )
         else
 
@@ -252,12 +244,13 @@ module ActsAsFiles
             ids_saved = []
 
             # Данные пришедшие в перенной @{field}
-            (obj.instance_variable_get("@#{field}".to_sym) || []).each do |el|
-              
+            (obj.instance_variable_get("@#{field}".to_sym) || []).each_with_index do |el, i|
+
+              el.position = i + 1
               if ::ActsAsFiles::BaseManager.success?(el, obj)
-                ids_saved.push(el.id) 
+                ids_saved.push(el.id)
               end
-                
+
             end # each
 
             # Удаляем все базовые файлы, кроме "сохраненных"
@@ -268,14 +261,11 @@ module ActsAsFiles
               sources.
               destroy_all
 
-            # Обвновляем порядок файлов
-            ::ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
-
             obj.instance_variable_set("@#{field}".to_sym, nil)
-            
+
           end # if
 
-        end # unless  
+        end # unless
 
       end # set_callback
 
@@ -288,11 +278,11 @@ module ActsAsFiles
         def #{field}_changed?
           !@#{field}.nil?
         end
-        
+
       }, __FILE__, __LINE__
 
-    end # additional_methods_for 
+    end # additional_methods_for
 
   end # BaseManager
 
-end # ActsAsFiles 
+end # ActsAsFiles
