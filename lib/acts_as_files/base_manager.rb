@@ -70,47 +70,33 @@ module ActsAsFiles
       def success?(el, obj)
 
         return false if el.nil? || obj.nil?
-        return true  if locked?(el, obj)
+        return true  if el.frozen?
         el.context_id = obj.id if el.context_id.nil?
         el.save
 
       end # success?
 
-      def clear_lock(obj)
+      def update_files_order(ids)
 
-        get_lock.delete(obj.object_id)
-        self
+        ids.each_index do |i|
+          ::Multimedia.source(ids[i]).update_all(:position => i + 1)
+        end # each_index
 
-      end # clear_lock
+      end # update_files_order
 
       private
-
-      def locked?(el, obj)
-        get_lock[obj.object_id][el.object_id].nil?
-      end # locked?
-
-      def lock(el, obj)
-
-        get_lock[obj.object_id][el.object_id] = 1
-        self
-
-      end # lock
 
       def equal_context?(obj, el, field)
 
         return false if el.nil?
 
         if el.context_by?(obj) && el.field_by?(field)
-          lock(el, obj)
+          el.freeze
           return true
         end
         false
 
       end # equal_context?
-
-      def get_lock
-        @lock ||= ::Hash.new { |k,v| k[v] = {} }
-      end # get_lock
 
     end # class << self
 
@@ -268,9 +254,9 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each_with_index do |el, i|
 
-              if el.respond_to?(:position)
-                el.position = i + 1
-              end
+#              if el.respond_to?(:position)
+#                el.position = i + 1
+#              end
 
               if ::ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id)
@@ -288,8 +274,8 @@ module ActsAsFiles
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
 
-            # Удаляем информацию по блокировкам.
-            ::ActsAsFiles::Manager::clear_lock(obj)
+            # Обвновляем порядок файлов
+            ::ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
 
           end # if
 
