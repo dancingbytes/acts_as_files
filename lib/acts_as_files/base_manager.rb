@@ -5,6 +5,8 @@ module ActsAsFiles
 
     class << self
 
+      @lock = ::Hash.new{ |k,v| k[v] = {} }
+
       #
       # Основные рабочие методы
       #
@@ -70,20 +72,38 @@ module ActsAsFiles
       def success?(el, obj)
 
         return false if el.nil? || obj.nil?
-        return true  if el.frozen?
+        return true  if locked?(el, obj) #el.frozen?
         el.context_id = obj.id if el.context_id.nil?
         el.save
 
       end # success?
 
+      def clear_lock(obj)
+
+        @lock.delete(obj.object_id)
+        self
+
+      end # clear_lock
+
       private
+
+      def locked?(el, obj)
+        @lock[obj.object_id][el.object_id] == 1
+      end # locked?
+
+      def lock(el, obj)
+
+        @lock[obj.object_id][el.object_id] = 1
+        self
+
+      end # lock
 
       def equal_context?(obj, el, field)
 
         return false if el.nil?
 
         if el.context_by?(obj) && el.field_by?(field)
-          el.freeze
+          lock(el, obj) #el.freeze
           return true
         end
         false
@@ -129,7 +149,7 @@ module ActsAsFiles
     end # init
 
     #
-    # Relations 
+    # Relations
     #
     def has_one(field, parse_from = nil)
 
@@ -246,7 +266,10 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each_with_index do |el, i|
 
-              el.position = i + 1
+              if el.respond_to?(:position)
+                el.position = i + 1
+              end
+
               if ::ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id)
               end
@@ -262,6 +285,9 @@ module ActsAsFiles
               destroy_all
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
+
+            # Удаляем информацию по блокировкам.
+            ::ActsAsFiles::Manager::clear_lock(obj)
 
           end # if
 
