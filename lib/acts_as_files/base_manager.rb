@@ -5,8 +5,6 @@ module ActsAsFiles
 
     class << self
 
-      @lock = ::Hash.new{ |k,v| k[v] = {} }
-
       #
       # Основные рабочие методы
       #
@@ -72,7 +70,7 @@ module ActsAsFiles
       def success?(el, obj)
 
         return false if el.nil? || obj.nil?
-        return true  if locked?(el, obj) #el.frozen?
+        return true  if locked?(el, obj)
         el.context_id = obj.id if el.context_id.nil?
         el.save
 
@@ -80,7 +78,7 @@ module ActsAsFiles
 
       def clear_lock(obj)
 
-        @lock.delete(obj.object_id)
+        get_lock.delete(obj.object_id)
         self
 
       end # clear_lock
@@ -88,12 +86,12 @@ module ActsAsFiles
       private
 
       def locked?(el, obj)
-        @lock[obj.object_id][el.object_id] == 1
+        get_lock[obj.object_id][el.object_id].nil?
       end # locked?
 
       def lock(el, obj)
 
-        @lock[obj.object_id][el.object_id] = 1
+        get_lock[obj.object_id][el.object_id] = 1
         self
 
       end # lock
@@ -103,12 +101,16 @@ module ActsAsFiles
         return false if el.nil?
 
         if el.context_by?(obj) && el.field_by?(field)
-          lock(el, obj) #el.freeze
+          lock(el, obj)
           return true
         end
         false
 
       end # equal_context?
+
+      def get_lock
+        @lock ||= ::Hash.new { |k,v| k[v] = {} }
+      end # get_lock
 
     end # class << self
 
