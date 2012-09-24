@@ -76,13 +76,16 @@ module ActsAsFiles
 
       end # success?
 
-      def update_files_order(ids)
+      def position_for(el, pos)
 
-        ids.each_index do |i|
-          ::Multimedia.source(ids[i]).update_all(:position => i + 1)
-        end # each_index
+        if el.frozen?
+          ::Multimedia.source(el.id).update_all(:position => pos + 1)
+        else
+          el.position = pos
+        end
+        el
 
-      end # update_files_order
+      end # position_for
 
       private
 
@@ -254,10 +257,10 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each_with_index do |el, i|
 
-#              if el.respond_to?(:position)
-#                el.position = i + 1
-#              end
+              # Обновляем порядок файлов
+              ::ActsAsFiles::Manager::position_for(el, i+1)
 
+              # Сохраняем
               if ::ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id)
               end
@@ -273,9 +276,6 @@ module ActsAsFiles
               destroy_all
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
-
-            # Обвновляем порядок файлов
-            ::ActsAsFiles::Manager::update_files_order(ids_saved) unless ids_saved.empty?
 
           end # if
 
