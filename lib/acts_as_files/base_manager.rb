@@ -79,7 +79,7 @@ module ActsAsFiles
       def position_for(el, pos)
 
         if el.frozen?
-          ::Multimedia.source(el.id).update_all(:position => pos + 1)
+          ::Multimedia.source(el.id).update_all(:position => pos)
         else
           el.position = pos
         end
