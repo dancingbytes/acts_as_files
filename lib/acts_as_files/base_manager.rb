@@ -76,6 +76,17 @@ module ActsAsFiles
 
       end # success?
 
+      def position_for(el, pos)
+
+        if el.frozen?
+          ::Multimedia.source(el.id).update_all(:position => pos)
+        else
+          el.position = pos
+        end
+        el
+
+      end # position_for
+
       private
 
       def equal_context?(obj, el, field)
@@ -129,7 +140,7 @@ module ActsAsFiles
     end # init
 
     #
-    # Relations 
+    # Relations
     #
     def has_one(field, parse_from = nil)
 
@@ -246,7 +257,10 @@ module ActsAsFiles
             # Данные пришедшие в перенной @{field}
             (obj.instance_variable_get("@#{field}".to_sym) || []).each_with_index do |el, i|
 
-              el.position = i + 1
+              # Обновляем порядок файлов
+              ::ActsAsFiles::Manager::position_for(el, i+1)
+
+              # Сохраняем
               if ::ActsAsFiles::BaseManager.success?(el, obj)
                 ids_saved.push(el.id)
               end
