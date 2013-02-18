@@ -16,7 +16,9 @@ ORM:    ActiveRecord, MondgoID
 ### Dependency
 
 # For mime-types
-libmagic-dev (for Ubuntu: sudo apt-get install libmagic-dev)
+libmagic-dev 
+(Ubuntu: sudo apt-get install libmagic-dev)
+(MacOS X: brew install libmagic)
 
 
 ### DSL example
