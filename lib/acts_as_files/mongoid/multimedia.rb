@@ -4,58 +4,74 @@ require 'acts_as_files/mongoid/multimedia/class_methods'
 module ActsAsFiles
 
   module Multimedia
-    
+
     extend  ::ActiveSupport::Concern
-    
+
     # metas
     included do
 
       include ::Mongoid::Document
-    
+
       include ::ActsAsFiles::MultimediaBase::InstanceMethods
       extend  ::ActsAsFiles::MultimediaMongoid::ClassMethods
 
       field :source_id
       field :ext
       field :mark
-      field :width,         :type => ::Integer
-      field :height,        :type => ::Integer
+      field :width,         :type => ::Integer,   :default => 0
+      field :height,        :type => ::Integer,   :defautl => 0
       field :context_type
       field :context_id
       field :context_field
       field :mime_type
       field :updated_at,    :type => ::Time
       field :position,      :type => ::Integer
-      field :size,          :type => ::Integer
+      field :size,          :type => ::Integer,   :default => 0
       field :name
 
-      index(
-        [
-          [ :mark,          Mongo::ASCENDING ],
-          [ :context_type,  Mongo::ASCENDING ],
-          [ :context_id,    Mongo::ASCENDING ],
-          [ :context_field, Mongo::ASCENDING ],
-          [ :position,      Mongo::ASCENDING ],
-          [ :source_id,     Mongo::ASCENDING ]
-          
-        ],
-        :name => "multimedia_indx"
-      )
+      index({
 
-      index(
-        [
-          [ :context_type,  Mongo::ASCENDING ],
-          [ :context_id,    Mongo::ASCENDING ],
-          [ :context_field, Mongo::ASCENDING ],
-          [ :source_id,     Mongo::ASCENDING ]
-          
-        ],
-        :name => "multimedia_indx_2"
-      )
+        position:       1,
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        mark:           1,
+        source_id:      1
 
-      index :updated_at
-      index :source_id
-      
+      }, {
+        name:       'multimedia_indx',
+        background: true
+      })
+
+      index({
+
+        position:       1,
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        mark:           1
+
+      }, {
+        name:       'multimedia_indx2',
+        background: true
+      })
+
+      index({
+
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        source_id:      1
+
+      }, {
+        name:       'multimedia_indx3',
+        background: true
+      })
+
+      index({ updated_at: 1 }, background: true )
+      index({ source_id:  1 }, background: true )
+
+
       # Защищенные параметры
       attr_protected  :source_id,
                       :ext,
@@ -69,13 +85,13 @@ module ActsAsFiles
                       :updated_at,
                       :position,
                       :size
-                      
+
 
       scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? ::Array
         any_of({:source_id.in => ids}, {:_id.in => ids})
       }
-      
+
       scope :copies_of, ->(id) {
         where(:source_id => id)
       }
@@ -83,11 +99,11 @@ module ActsAsFiles
       scope   :sources,  where(:source_id => nil)
 
       scope   :skip_ids, ->(ids = []) {
-        
+
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? self.criteria : not_in(:_id => ids) 
-          
+        ids.empty? ? self.criteria : not_in(:_id => ids)
+
       }
 
       scope   :by_field,  ->(field_name) {
@@ -103,7 +119,7 @@ module ActsAsFiles
       scope   :dimentions, ->(*args) {
 
         return sources if args.length == 0
-        
+
         if (args[0].is_a?(::String) || args[0].is_a?(::Symbol))
           where(:mark => args[0].to_s)
         else
@@ -112,11 +128,11 @@ module ActsAsFiles
           hash[:height] = args[1] unless args[1].nil?
           where(hash)
         end
-        
+
       } # dimentions
 
-    end # included  
+    end # included
 
   end # Multimedia
-  
+
 end # ActsAsFiles
