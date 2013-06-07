@@ -14,6 +14,7 @@ module ActsAsFiles
       end
 
     end # initializer
+    
 
     config.to_prepare do
 
