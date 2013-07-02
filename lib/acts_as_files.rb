@@ -18,41 +18,42 @@ module ActsAsFiles
     CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
   end
 
-  CRAWLER = ::GirlFriday::Queue.new('image_crawler', :size => ::ActsAsFiles::CORES) do |arr|
-
-    (parent, mark, action) = arr
-
-    el = parent.class.new
-
-    el.name          = parent.name
-    el.source_id     = parent.id
-    el.context_type  = parent.context_type
-    el.context_id    = parent.context_id
-    el.context_field = parent.context_field
-    el.position      = parent.position
-    el.mime_type     = parent.mime_type
-    el.name          = parent.name
-    el.ext           = parent.ext
-    el.file_upload   = parent.path(:source)
-
-    unless action.nil?
-
-      if action.is_a?(::Proc)
-        el.custom_sizing(mark, &action)
-      else
-        el.custom_sizing(mark) do |file|
-          file.resize(action.to_s)
-        end
-
-      end # if
-
-    end # unless  
-
-    el.save(validate: false)
-
-  end # CRAWLER
 
   class << self
+
+    def crawler(arr)
+
+      (parent, mark, action) = arr
+
+      el = parent.class.new
+
+      el.name          = parent.name
+      el.source_id     = parent.id
+      el.context_type  = parent.context_type
+      el.context_id    = parent.context_id
+      el.context_field = parent.context_field
+      el.position      = parent.position
+      el.mime_type     = parent.mime_type
+      el.name          = parent.name
+      el.ext           = parent.ext
+      el.file_upload   = parent.path(:source)
+
+      unless action.nil?
+
+        if action.is_a?(::Proc)
+          el.custom_sizing(mark, &action)
+        else
+          el.custom_sizing(mark) do |file|
+            file.resize(action.to_s)
+          end
+
+        end # if
+
+      end # unless  
+
+      el.save(validate: false)
+
+    end # crawler
 
     def config
       

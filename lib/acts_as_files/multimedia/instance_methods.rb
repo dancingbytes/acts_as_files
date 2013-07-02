@@ -302,7 +302,7 @@ module ActsAsFiles
 
         # Создаем копии изображений
         (configs[:marks] || {}).each do |mark, value|
-          ::ActsAsFiles::CRAWLER << [self, mark, value]
+          ::ActsAsFiles.crawler [self, mark, value]
         end  
 
       end # create_file
