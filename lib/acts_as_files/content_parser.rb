@@ -22,14 +22,14 @@ module ActsAsFiles
 
         unless (attr = node["#{@node_attr}"]).nil?
 
-          unless ( (replace = yield(attr)) == false )
+          if ((replace = yield(attr)) && replace.url)
 
             node["#{@node_attr}"] = replace.url
             node["width"]  = "#{replace.width}"
             node["height"] = "#{replace.height}"
 
           end # unless
-          
+
         end # unless
 
       } # find_all

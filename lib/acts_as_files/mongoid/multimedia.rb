@@ -18,79 +18,58 @@ module ActsAsFiles
       field :source_id
       field :ext
       field :mark
-      field :width,         :type => ::Integer
-      field :height,        :type => ::Integer
+      field :width,         :type => ::Integer,   :default => 0
+      field :height,        :type => ::Integer,   :defautl => 0
       field :context_type
       field :context_id
       field :context_field
       field :mime_type
       field :updated_at,    :type => ::Time
       field :position,      :type => ::Integer
-      field :size,          :type => ::Integer
+      field :size,          :type => ::Integer,   :default => 0
       field :name
 
-      # For mongoid 2.4
-      unless (::Mongoid::VERSION =~ /\A2.4/).nil?
+      index({
 
-        index(
-          [
-            [ :mark,          Mongo::ASCENDING ],
-            [ :context_type,  Mongo::ASCENDING ],
-            [ :context_id,    Mongo::ASCENDING ],
-            [ :context_field, Mongo::ASCENDING ],
-            [ :position,      Mongo::ASCENDING ],
-            [ :source_id,     Mongo::ASCENDING ]
+        position:       1,
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        mark:           1,
+        source_id:      1
 
-          ],
-          :name => "multimedia_indx"
-        )
+      }, {
+        name:       'multimedia_indx',
+        background: true
+      })
 
-        index(
-          [
-            [ :context_type,  Mongo::ASCENDING ],
-            [ :context_id,    Mongo::ASCENDING ],
-            [ :context_field, Mongo::ASCENDING ],
-            [ :source_id,     Mongo::ASCENDING ]
+      index({
 
-          ],
-          :name => "multimedia_indx_2"
-        )
+        position:       1,
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        mark:           1
 
-        index :updated_at
-        index :source_id
+      }, {
+        name:       'multimedia_indx2',
+        background: true
+      })
 
-      else
+      index({
 
-        # For mongoid 3.0
+        context_type:   1,
+        context_id:     1,
+        context_field:  1,
+        source_id:      1
 
-        index({
+      }, {
+        name:       'multimedia_indx3',
+        background: true
+      })
 
-          mark:           1,
-          context_type:   1,
-          context_id:     1,
-          context_field:  1,
-          position:       1,
-          source_id:      1
-
-        }, {
-          name: "multimedia_indx"
-        })
-
-        index({
-
-          context_type:   1,
-          context_id:     1,
-          context_field:  1,
-          source_id:      1
-
-        }, {
-          name: "multimedia_indx_2"
-        })
-
-        index({ updated_at: 1 })
-        index({ source_id:  1 })
-
-      end
+      index({ updated_at: 1 }, background: true )
+      index({ source_id:  1 }, background: true )
 
       # Защищенные параметры
       attr_protected  :source_id,
@@ -122,7 +101,7 @@ module ActsAsFiles
 
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? self.criteria : not_in(:_id => ids) 
+        ids.empty? ? self.criteria : not_in(:_id => ids)
 
       }
 
