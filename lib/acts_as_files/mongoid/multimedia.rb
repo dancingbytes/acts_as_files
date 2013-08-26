@@ -18,15 +18,15 @@ module ActsAsFiles
       field :source_id
       field :ext
       field :mark
-      field :width,         :type => ::Integer,   :default => 0
-      field :height,        :type => ::Integer,   :defautl => 0
+      field :width,         :type => Integer,   :default => 0
+      field :height,        :type => Integer,   :default => 0
       field :context_type
       field :context_id
       field :context_field
       field :mime_type
-      field :updated_at,    :type => ::Time
-      field :position,      :type => ::Integer
-      field :size,          :type => ::Integer,   :default => 0
+      field :updated_at,    :type => Time
+      field :position,      :type => Integer
+      field :size,          :type => Integer,   :default => 0
       field :name
 
       index({
