@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "acts_as_files/version"
 
 Gem::Specification.new do |s|
-  
+
   s.name = 'acts_as_files'
   s.version = ActsAsFiles::VERSION
   s.platform = Gem::Platform::RUBY
@@ -20,10 +20,10 @@ Gem::Specification.new do |s|
 
   s.licenses = ['BSD']
 
-  s.add_dependency 'railties', ['>= 3.0.0']
-  s.add_dependency 'quick_magick', ['0.8']
-  s.add_dependency 'nokogiri', ['1.5']
-  s.add_dependency 'ruby-filemagic', ['0.4.2']
+  s.add_dependency 'rails',           '~> 3.2'
+  s.add_dependency 'quick_magick',    '0.8'
+  s.add_dependency 'nokogiri',        '~> 1.6'
+  s.add_dependency 'ruby-filemagic',  '~> 0.4.2'
   s.add_dependency 'girl_friday'
-  
+
 end
