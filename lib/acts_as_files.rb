@@ -1,7 +1,6 @@
 # encoding: utf-8
 require 'acts_as_files/version'
 require 'acts_as_files/builder'
-require 'girl_friday'
 require 'filemagic'
 
 module ActsAsFiles
@@ -9,81 +8,38 @@ module ActsAsFiles
   MONGOID = defined?(Mongoid)
   AR      = defined?(ActiveRecord)
   ID      = (ActsAsFiles::MONGOID ? :_id : :id)
-
   MIME    = ::FileMagic.mime
 
-  if RUBY_PLATFORM.downcase.include?("darwin")
-    CORES   = `sysctl hw.ncpu | awk '{print $2}'`.chop.to_i
-  else
-    CORES   = `cat /proc/cpuinfo | grep processor | wc -l`.chop.to_i
-  end
+  extend self
 
-  CRAWLER = ::GirlFriday::Queue.new('image_crawler', :size => ::ActsAsFiles::CORES) do |arr|
+  def config
 
-    (parent, mark, action) = arr
+    unless @config
 
-    el = parent.class.new
+      r = ::ActsAsFiles::Builder::General.new
+      @config = (r.compile || {})[::Rails.env || ::RAILS_ENV] || {}
 
-    el.name          = parent.name
-    el.source_id     = parent.id
-    el.context_type  = parent.context_type
-    el.context_id    = parent.context_id
-    el.context_field = parent.context_field
-    el.position      = parent.position
-    el.mime_type     = parent.mime_type
-    el.name          = parent.name
-    el.ext           = parent.ext
-    el.file_upload   = parent.path(:source)
+    end # unless
+    @config
 
-    unless action.nil?
+  end # config
 
-      if action.is_a?(::Proc)
-        el.custom_sizing(mark, &action)
-      else
-        el.custom_sizing(mark) do |file|
-          file.resize(action.to_s)
-        end
+  def class_exists?(class_name)
 
-      end # if
+    return false if class_name.blank?
 
-    end # unless  
+    begin
+      ::Object.const_defined?(class_name) ? ::Object.const_get(class_name) : ::Object.const_missing(class_name)
+    rescue => e
+      return false if e.instance_of?(NameError)
+      raise e
+    end
 
-    el.save(validate: false)
+  end # class_exists?
 
-  end # CRAWLER
-
-  class << self
-
-    def config
-      
-      unless @config
-      
-        r = ::ActsAsFiles::Builder::General.new
-        @config = (r.compile || {})[::Rails.env || ::RAILS_ENV] || {}
-
-      end # unless
-      @config
-      
-    end # config
-
-    def class_exists?(class_name)
-      
-      return false if class_name.blank?
-
-      begin
-        ::Object.const_defined?(class_name) ? ::Object.const_get(class_name) : ::Object.const_missing(class_name)
-      rescue => e
-        return false if e.instance_of?(NameError)
-        raise e
-      end
-
-    end # class_exists?
-
-    def nil_or_zero?(num)
-      num.nil? || (num.is_a?(::Numeric) && num.zero?)
-    end # nil_or_zero? 
-
-  end # class << self
+  def nil_or_zero?(num)
+    num.nil? || (num.is_a?(::Numeric) && num.zero?)
+  end # nil_or_zero?
 
 end # ActsAsFiles
 

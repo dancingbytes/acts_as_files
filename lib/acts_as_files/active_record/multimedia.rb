@@ -4,7 +4,7 @@ require 'acts_as_files/active_record/multimedia/class_methods'
 module ActsAsFiles
 
   module Multimedia
-    
+
     extend ::ActiveSupport::Concern
 
     # metas
@@ -13,25 +13,25 @@ module ActsAsFiles
       include ::ActsAsFiles::MultimediaBase::InstanceMethods
       extend  ::ActsAsFiles::MultimediaAR::ClassMethods
 
-      # Защищенные параметры
-      attr_protected  :source_id,
-                      :ext,
-                      :mark,
-                      :width,
-                      :height,
-                      :context_type,
-                      :context_id,
-                      :context_field,
-                      :mime_type,
-                      :updated_at,
-                      :position,
-                      :size
+#      # Защищенные параметры
+#      attr_protected  :source_id,
+#                      :ext,
+#                      :mark,
+#                      :width,
+#                      :height,
+#                      :context_type,
+#                      :context_id,
+#                      :context_field,
+#                      :mime_type,
+#                      :updated_at,
+#                      :position,
+#                      :size
 
       scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? ::Array
         where({:source_id => 0, :id => ids })
       }
-      
+
       scope :copies_of, ->(id) {
         where(:source_id => id)
       }
@@ -39,11 +39,11 @@ module ActsAsFiles
       scope   :sources,  where(:source_id => 0)
 
       scope   :skip_ids, ->(ids = []) {
-        
+
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? nil : where("`id` NOT IN (#{ids.join(',')})") 
-          
+        ids.empty? ? nil : where("`id` NOT IN (#{ids.join(',')})")
+
       }
 
       scope   :by_field,  ->(field_name) {
@@ -59,7 +59,7 @@ module ActsAsFiles
       scope   :dimentions, ->(*args) {
 
         return sources if args.length == 0
-        
+
         if (args[0].is_a?(::String) || args[0].is_a?(::Symbol))
           where(:mark => args[0].to_s)
         else
@@ -68,7 +68,7 @@ module ActsAsFiles
           hash[:height] = args[1] unless args[1].nil?
           where(hash)
         end
-        
+
       } # dimentions
 
       scope :asc, ->(field) {

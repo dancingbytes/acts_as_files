@@ -36,7 +36,7 @@ module ActsAsFiles
           ::ActsAsFiles::MIME.file(self.path, true)
         rescue
           nil
-        end  
+        end
 
       end # file_mime_type
 
@@ -104,7 +104,7 @@ module ActsAsFiles
       end # path
 
       def url(looking_for = nil)
-        
+
         return if new_record?
         return if !self.image? && looking_for == :thumb
 
@@ -134,10 +134,10 @@ module ActsAsFiles
       def custom_sizing(mark = nil)
 
         return self unless self.image?
-        
+
         tf = ::ActsAsFiles::ImageProcessor.new(self.file_upload)
         tf = yield(tf) if block_given?
-        
+
         if tf.save( ::File.join(::Dir::tmpdir, "#{self.id}-#{::Time.now.to_f}-#{self.ext}.tmp") )
           self.file_upload = tf.path
           self.mark = mark if mark
@@ -145,7 +145,7 @@ module ActsAsFiles
 
         @temp_file = tf.path
         self
-        
+
       end # custom_sizing
 
       def save(opts = {})
@@ -161,15 +161,15 @@ module ActsAsFiles
           if (result = super(opts))
             nr ? create_file : update_file
           end
-          result  
+          result
 
         rescue => e
-          
+
           self.errors.add(:file_upload, e.message)
           self.destroy
           false
 
-        ensure            
+        ensure
           ::File.unlink(@temp_file) if @temp_file && ::File.exist?(@temp_file)
         end
 
@@ -180,7 +180,7 @@ module ActsAsFiles
         if (result = super)
           delete_file
         end
-        result  
+        result
 
       end # destroy
 
@@ -204,7 +204,7 @@ module ActsAsFiles
 
       def diff(numb)
         self.class.diff(numb)
-      end # diff  
+      end # diff
 
       def initialize_file
 
@@ -227,7 +227,7 @@ module ActsAsFiles
             ::File.basename(@file.path, self.ext)
           end
           @basename.force_encoding(::Encoding::UTF_8) if @basename.respond_to?(:force_encoding)
-          
+
           # Устанавливаем название файла
           self.name = @basename if self.name.blank?
 
@@ -242,7 +242,7 @@ module ActsAsFiles
           end
 
         end # if
-        
+
         # Определяем размеры файла
         self.size = @file.respond_to?(:size) ? @file.size : @file.stat.size
 
@@ -253,13 +253,13 @@ module ActsAsFiles
         return {} if self.context_type.blank?
         return {} unless ::ActsAsFiles.class_exists?(self.context_type)
         (::ActsAsFiles::ContextStore[self.context_type] || {})[self.context_field] || {}
-        
+
       end # configs
 
       def initialize_image
 
         return if @file.nil? || !self.image?
-        
+
         @source_image = @file
 
         do_action(self, configs[:default]) if self.source?
@@ -291,19 +291,48 @@ module ActsAsFiles
         if fp != sp
 
           # Сохраняем исходник.
-          ::FileUtils.cp(fp, sp) 
+          ::FileUtils.cp(fp, sp)
           # Выставляем права на файл
           ::FileUtils.chmod(0644, sp)
 
-        end # if  
+        end # if
 
         # Создаем thumbnail.
         @image.thumb(80).save(self.path(:thumb))
 
         # Создаем копии изображений
         (configs[:marks] || {}).each do |mark, value|
-          ::ActsAsFiles::CRAWLER << [self, mark, value]
-        end  
+
+          el = self.class.new
+
+          el.name          = self.name
+          el.source_id     = self.id
+          el.context_type  = self.context_type
+          el.context_id    = self.context_id
+          el.context_field = self.context_field
+          el.position      = self.position
+          el.mime_type     = self.mime_type
+          el.name          = self.name
+          el.ext           = self.ext
+          el.file_upload   = self.path(:source)
+
+          unless value.nil?
+
+            if value.is_a?(::Proc)
+              el.custom_sizing(mark, &value)
+            else
+
+              el.custom_sizing(mark) do |file|
+                file.resize(value.to_s)
+              end
+
+            end # if
+
+          end # unless
+
+          el.save(validate: false)
+
+        end # each
 
       end # create_file
 
@@ -316,7 +345,7 @@ module ActsAsFiles
 
         # Удалим все копии (если файл являектся базовым)
         self.class.copies_of(self.id).destroy_all if self.source?
-        
+
         # Создадим заново (по новыми данным)
         create_file
 
@@ -330,10 +359,10 @@ module ActsAsFiles
         ::FileUtils.rm ::Dir.glob( ::File.join( self.dir, path_name ) ), :force => true
 
         return unless self.source?
-          
+
         # Удаляем thumbnail
         ::FileUtils.rm ::Dir.glob( ::File.join( self.dir(:thumb),  path_name ) ), :force => true
-          
+
         # Удаляем исходник
         ::FileUtils.rm ::Dir.glob( ::File.join( self.dir(:source), path_name ) ), :force => true
 
