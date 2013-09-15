@@ -13,36 +13,24 @@ module ActsAsFiles
       include ::ActsAsFiles::MultimediaBase::InstanceMethods
       extend  ::ActsAsFiles::MultimediaAR::ClassMethods
 
-#      # Защищенные параметры
-#      attr_protected  :source_id,
-#                      :ext,
-#                      :mark,
-#                      :width,
-#                      :height,
-#                      :context_type,
-#                      :context_id,
-#                      :context_field,
-#                      :mime_type,
-#                      :updated_at,
-#                      :position,
-#                      :size
-
       scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? ::Array
-        where({:source_id => 0, :id => ids })
+        where(:source_id => 0, :id => ids)
       }
 
       scope :copies_of, ->(id) {
         where(:source_id => id)
       }
 
-      scope   :sources,  where(:source_id => 0)
+      scope   :sources,  ->() {
+        where(:source_id => 0)
+      }
 
       scope   :skip_ids, ->(ids = []) {
 
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? nil : where("`id` NOT IN (#{ids.join(',')})")
+        ids.empty? ? nil : where.not(:id => ids)
 
       }
 
@@ -54,7 +42,9 @@ module ActsAsFiles
         where(:context_type => obj.class.to_s, :context_id => obj.id)
       }
 
-      scope   :general,  by_field('')
+      scope   :general,  ->() {
+        by_field('')
+      }
 
       scope   :dimentions, ->(*args) {
 
@@ -66,7 +56,7 @@ module ActsAsFiles
           hash = {}
           hash[:width]  = args[0] unless args[0].nil?
           hash[:height] = args[1] unless args[1].nil?
-          where(hash)
+          hash.empty? ? nil : where(hash)
         end
 
       } # dimentions

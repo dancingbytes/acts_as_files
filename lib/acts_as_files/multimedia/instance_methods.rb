@@ -150,7 +150,15 @@ module ActsAsFiles
 
       def save(opts = {})
 
-        return false if self.file_upload.nil? || !valid_size?
+        if self.file_upload.nil?
+          self.errors.add(:file_upload, "Выберите файл")
+          return false
+        end
+
+        unless valid_size?
+          self.errors.add(:file_upload, "Превышен размер файла")
+          return false
+        end
 
         nr = new_record?
         initialize_image
@@ -161,13 +169,13 @@ module ActsAsFiles
           if (result = super(opts))
             nr ? create_file : update_file
           end
-          result
+          return result
 
         rescue => e
 
           self.errors.add(:file_upload, e.message)
           self.destroy
-          false
+          return false
 
         ensure
           ::File.unlink(@temp_file) if @temp_file && ::File.exist?(@temp_file)

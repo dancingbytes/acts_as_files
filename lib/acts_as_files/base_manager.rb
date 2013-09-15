@@ -157,6 +157,7 @@ module ActsAsFiles
 
           def #{field.to_sym}=(val)
             @#{field} = ::ActsAsFiles::Manager.append_file(self, val, "#{field}")
+            @#{field}
           end
 
         }, __FILE__, __LINE__
