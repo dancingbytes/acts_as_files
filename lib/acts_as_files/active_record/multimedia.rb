@@ -30,7 +30,7 @@ module ActsAsFiles
 
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? nil : where.not(:id => ids)
+        ids.empty? ? nil : where(self.arel_table[:id].not_in(ids))
 
       }
 
