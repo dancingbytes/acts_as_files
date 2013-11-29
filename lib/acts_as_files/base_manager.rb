@@ -183,17 +183,18 @@ module ActsAsFiles
           el = obj.instance_variable_get("@#{field}".to_sym)
           if obj.try("#{field}_changed?")
 
+            ids_saved = []
             if ::ActsAsFiles::BaseManager.success?(el, obj)
+              ids_saved << el.id
+            end
 
-              # Удаляем все базовые файлы, кроме текущего
-              ::Multimedia.
-                by_context(obj).
-                by_field(field).
-                skip_ids(el.id).
-                sources.
-                destroy_all
-
-            end # if
+            # Удаляем все базовые файлы, кроме сохраненных
+            ::Multimedia.
+              by_context(obj).
+              by_field(field).
+              skip_ids(ids_saved).
+              sources.
+              destroy_all
 
             obj.instance_variable_set("@#{field}".to_sym, nil)
 
