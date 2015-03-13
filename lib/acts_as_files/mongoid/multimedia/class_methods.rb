@@ -59,7 +59,7 @@ module ActsAsFiles
           if looking_for == :thumb
             [::ActsAsFiles.config["thumb_url_path"], diff(sid), basename(id, sid, ext, :thumb)]
           else
-            [::ActsAsFiles.config["url_path"], diff(id), self.basename(id, sid, ext)]
+            [::ActsAsFiles.config["url_path"], diff(id), basename(id, sid, ext)]
           end
         ).flatten.join("/")
 
