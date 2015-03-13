@@ -11,7 +11,7 @@ module ActsAsFiles
           uri = ::URI.parse(url)
         rescue ::URI::InvalidURIError
           return
-        end  
+        end
 
         return if uri.path.nil?
 
@@ -37,9 +37,9 @@ module ActsAsFiles
         [time, machine, pid, inc]
 
       end # split_id
-      
+
       def whole(id)
-        
+
         arr = split_id(id)
         [arr[1..2].join] << arr[3][0..1]
 
@@ -52,6 +52,30 @@ module ActsAsFiles
         arr[0].join << arr[3][2]
 
       end # rest
+
+      def url(id, sid, ext, looking_for = nil)
+
+        (
+          if looking_for == :thumb
+            [::ActsAsFiles.config["thumb_url_path"], diff(sid), basename(id, sid, ext, :thumb)]
+          else
+            [::ActsAsFiles.config["url_path"], diff(id), self.basename(id, sid, ext)]
+          end
+        ).flatten.join("/")
+
+      end # url
+
+      private
+
+      def basename(id, sid, ext, looking_for = nil)
+
+        case(looking_for)
+          when :thumb   then "#{rest(sid)}.png"
+          when :source  then "#{rest(sid)}.#{ext}"
+          else "#{rest(id)}.#{ext}"
+        end
+
+      end # basename
 
     end # ClassMethods
 
