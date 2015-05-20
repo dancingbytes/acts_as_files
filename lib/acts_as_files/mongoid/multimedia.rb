@@ -71,21 +71,6 @@ module ActsAsFiles
       index({ updated_at: 1 }, background: true )
       index({ source_id:  1 }, background: true )
 
-      # Защищенные параметры
-      attr_protected  :source_id,
-                      :ext,
-                      :mark,
-                      :width,
-                      :height,
-                      :context_type,
-                      :context_id,
-                      :context_field,
-                      :mime_type,
-                      :updated_at,
-                      :position,
-                      :size
-
-
       scope   :source,  ->(ids = []) {
         ids = [ids] unless ids.is_a? ::Array
         any_of({:source_id.in => ids}, {:_id.in => ids})
@@ -95,7 +80,9 @@ module ActsAsFiles
         where(:source_id => id)
       }
 
-      scope   :sources,  where(:source_id => nil)
+      scope   :sources,  ->() {
+        where(:source_id => nil)
+      }
 
       scope   :skip_ids, ->(ids = []) {
 
@@ -113,7 +100,9 @@ module ActsAsFiles
         where(:context_type => obj.class.to_s, :context_id => obj.id)
       }
 
-      scope   :general,  by_field('')
+      scope   :general,  ->() {
+        by_field('')
+      }
 
       scope   :dimentions, ->(*args) {
 
