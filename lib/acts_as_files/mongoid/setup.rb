@@ -10,7 +10,14 @@ else
 
 end # if
 
-if defined?(Kaminari)
+if defined?(Kaminari::Mongoid::MongoidExtension::Document)
+
+  require 'kaminari/mongoid/mongoid_extension'
+  Multimedia.send :include, Kaminari::Mongoid::MongoidExtension::Document
+
+elsif defined?(Kaminari)
+
   require 'kaminari/models/mongoid_extension'
   Multimedia.send :include, Kaminari::MongoidExtension::Document
+
 end
