@@ -264,7 +264,7 @@ module ActsAsFiles
 
               # Сохраняем
               if ::ActsAsFiles::BaseManager.success?(el, obj)
-                ids_saved.push(el.id)
+                ids_saved.push(el.id.to_s)
               end
 
             end # each
