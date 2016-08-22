@@ -88,7 +88,7 @@ module ActsAsFiles
 
         ids = [ids] unless ids.is_a? ::Array
         ids = ids.uniq.compact
-        ids.empty? ? self.criteria : not_in(:_id => ids)
+        ids.empty? ? self.criteria : where(:id.nin => ids)
 
       }
 
