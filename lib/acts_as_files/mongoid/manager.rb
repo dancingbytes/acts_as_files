@@ -17,14 +17,14 @@ module ActsAsFiles
         return if file_id.nil?
 
         # Пытаемся преобразовать file_id в BSON::ObjectId
-        file_id = if ::BSON::ObjectId.legal?(file_id)
-          ::BSON::ObjectId(file_id)
+        file_id = if ::Moped::BSON::ObjectId.legal?(file_id)
+          ::Moped::BSON::ObjectId(file_id)
         else
           file_id
         end
 
         # BSON::ObjectId or BSON::ObjectId.legal?
-        if file_id.is_a?(::BSON::ObjectId)
+        if file_id.is_a?(::Moped::BSON::ObjectId)
 
           # Ищем объект в базе
           el = ::Multimedia.where(::ActsAsFiles::ID => file_id).first
