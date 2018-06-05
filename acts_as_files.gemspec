@@ -16,12 +16,11 @@ Gem::Specification.new do |s|
   s.files       = `git ls-files`.split("\n")
   s.test_files  = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ['lib']
-  s.has_rdoc    = false
 
   s.licenses    = ['BSD']
 
   s.add_dependency 'quick_magick',    '~> 0.8'
-  s.add_dependency 'nokogiri',        '~> 1.6'
+  s.add_dependency 'nokogiri',        '~> 1.8'
   s.add_dependency 'ruby-filemagic',  '~> 0.4.2'
 
 end
